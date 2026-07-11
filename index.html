@@ -104,8 +104,8 @@
     <a class="tile" href="https://clubdecampolaeugenia.github.io/boletin-la-eugenia/?admin=1&pin=1923" target="_blank">
       <img class="tile-icono-img" src="https://i.imgur.com/2jCxrty.png" alt="">
       <div class="tile-titulo">Boletín</div>
-      <div class="tile-dato">238</div>
-      <div class="tile-label">suscriptores</div>
+      <div class="tile-dato" id="datoBoletinActivos">—</div>
+      <div class="tile-label" id="labelBoletinDesglose">activos</div>
     </a>
 
     <div class="tile destacada proximamente">
@@ -161,6 +161,18 @@
     document.getElementById('dashScreen').classList.add('active');
     cargarLotesOcultos();
     cargarTesoreria();
+    cargarBoletin();
+  }
+
+  function cargarBoletin() {
+    var EXEC_URL_BOLETIN = 'https://script.google.com/macros/s/AKfycbw-m5ffo9Ul05FO88O-7I09_BPZrYYm4awYcQcC47pPjMQ5fV9xI-8kzkH6IKgnSJvW/exec';
+    jsonp(EXEC_URL_BOLETIN, { action: 'listar' }, function(d) {
+      var elDato = document.getElementById('datoBoletinActivos');
+      var elLabel = document.getElementById('labelBoletinDesglose');
+      if (!elDato || !d || !d.ok) return;
+      elDato.textContent = d.activos;
+      elLabel.textContent = 'activos · ' + (d.pendientes || 0) + ' pend. · ' + (d.bajas || 0) + ' baja(s) · ' + (d.activosWeb || 0) + ' web / ' + (d.activosManual || 0) + ' manual';
+    });
   }
 
   function cargarTesoreria() {
