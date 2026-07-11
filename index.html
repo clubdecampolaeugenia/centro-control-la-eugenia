@@ -203,7 +203,7 @@
 
   function cargarBoletin() {
     var EXEC_URL_BOLETIN = 'https://script.google.com/macros/s/AKfycbw-m5ffo9Ul05FO88O-7I09_BPZrYYm4awYcQcC47pPjMQ5fV9xI-8kzkH6IKgnSJvW/exec';
-    jsonp(EXEC_URL_BOLETIN, { action: 'listar' }, function(d) {
+    jsonp(EXEC_URL_BOLETIN, { accion: 'listar' }, function(d) {
       var elDato = document.getElementById('datoBoletinActivos');
       var elLabel = document.getElementById('labelBoletinDesglose');
       if (!elDato || !d || !d.ok) return;
