@@ -194,10 +194,10 @@
       var elDato = document.getElementById('datoCuota');
       var elLabel = document.getElementById('labelCuota');
       if (!elDato || !d || !d.vigente) return;
-      elDato.textContent = d.vigente.lote || '$ —';
+      elDato.textContent = (d.vigente.lote || '$ —') + ' / ' + (d.vigente.adicional || '$ —');
       var prep = d.preparacion;
-      var prepTxt = (prep && prep.determinada) ? (prep.periodo + ': ' + prep.lote) : (prep ? prep.periodo + ' (pendiente)' : '—');
-      elLabel.textContent = 'vigente · en preparación: ' + prepTxt;
+      var prepTxt = (prep && prep.determinada) ? (prep.periodo + ': ' + prep.lote + ' / ' + prep.adicional) : (prep ? prep.periodo + ' (pendiente)' : '—');
+      elLabel.textContent = 'lote / adicional · próx: ' + prepTxt;
     });
   }
 
