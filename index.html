@@ -90,7 +90,7 @@
     <a class="tile" href="https://clubdecampolaeugenia.github.io/tesoreria-la-eugenia/" target="_blank">
       <img class="tile-icono-img" src="https://i.imgur.com/OBFb4tJ.png" alt="">
       <div class="tile-titulo">Tesorería</div>
-      <div class="tile-dato">$ —</div>
+      <div class="tile-dato" id="datoTesoreria">$ —</div>
       <div class="tile-label">resultado del mes</div>
     </a>
 
@@ -160,7 +160,20 @@
     document.getElementById('dashScreen').style.display = 'block';
     document.getElementById('dashScreen').classList.add('active');
     cargarLotesOcultos();
+    cargarTesoreria();
   }
+
+  function cargarTesoreria() {
+    var DATA_URL = 'https://script.google.com/macros/s/AKfycbzqf-oxbyV-SsQaUZj_C33xSQMX7h4V-g5Ws8EcXQ49nOYpn1_VWVwNhjnj3yd9PD_Syg/exec';
+    var el = document.getElementById('datoTesoreria');
+    fetch(DATA_URL)
+      .then(function(res) { return res.json(); })
+      .then(function(d) {
+        if (!el || d.error) return;
+        var valor = Number(d.resultado).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        el.textContent = '$ ' + valor;
+      })
+      .catch(function() { /* deja el placeholder si falla */ });
 
   function jsonp(url, params, callback) {
     var cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
