@@ -149,6 +149,25 @@
       <div class="tile-label" style="margin-top:8px;">Próximamente</div>
     </div>
 
+    <div class="tile" id="tilePines" style="display:none;" onclick="togglePanelPines()">
+      <span class="tile-icono">🔑</span>
+      <div class="tile-titulo">PINes</div>
+      <div class="tile-dato" id="datoPines">—</div>
+      <div class="tile-label">administrar accesos</div>
+    </div>
+
+  </div>
+
+  <div id="panelPines" style="display:none; max-width:900px; margin:0 auto 24px; background:var(--hueso); border-radius:16px; padding:16px;">
+    <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Administrar PINes</div>
+    <div id="listaPines" style="margin-bottom:14px;"></div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <input type="text" id="nuevoPinValor" placeholder="PIN (4 dígitos)" maxlength="4" inputmode="numeric" style="width:110px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
+      <input type="text" id="nuevoPinNombre" placeholder="Nombre" style="flex:1; min-width:120px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
+      <input type="text" id="nuevoPinModulos" placeholder="Módulos (ej: reportes,cuota)" style="flex:1; min-width:160px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
+      <button onclick="crearPinNuevo()" style="background:var(--petroleo); color:var(--lima); border:none; padding:8px 16px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Agregar</button>
+    </div>
+    <div id="msgPines" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
   </div>
 
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
@@ -163,6 +182,10 @@
     cargarTesoreria();
     cargarBoletin();
     cargarCuota();
+    if (localStorage.getItem('cgv_es_maestro') === '1') {
+      document.getElementById('tilePines').style.display = 'block';
+      document.getElementById('datoPines').textContent = localStorage.getItem('cgv_nombre') || '✓';
+    }
   }
 
   function cargarCuota() {
@@ -222,6 +245,8 @@
     });
   }
 
+  var EXEC_URL_PINES = 'https://script.google.com/macros/s/AKfycbyt4PoL_IWHaXRlMNDy2cPtWmvj7f0-DLpSe5IHir54yPDNg8osPtX_0ezoopC4aGR_7A/exec';
+
   // Si ya hay sesion activa de cualquier otra app del ecosistema, saltamos el PIN
   if (localStorage.getItem('cgv_admin_ok') === '1') {
     mostrarDashboard();
@@ -229,18 +254,94 @@
 
   function verificarPin() {
     var pin = document.getElementById('pinInput').value;
-    if (pin === '1923') {
-      localStorage.setItem('cgv_admin_ok', '1');
-      mostrarDashboard();
-    } else {
-      document.getElementById('pinError').innerText = 'PIN incorrecto. Intentá de nuevo.';
-      document.getElementById('pinInput').value = '';
-      var pinEl = document.getElementById('pinInput');
-      pinEl.classList.add('error');
-      setTimeout(function(){ pinEl.classList.remove('error'); }, 400);
-    }
+    var yaResolvio = false;
+    var timeoutId = setTimeout(function() {
+      if (yaResolvio) return;
+      yaResolvio = true;
+      // Backend central no respondió: fallback a los PINes conocidos, sin cortar el trabajo
+      if (pin === '1923' || pin === '1112') {
+        aceptarPin(pin, pin === '1923' ? 'Augusto' : 'Fernanda', pin === '1923');
+      } else {
+        mostrarErrorPin();
+      }
+    }, 4000);
+
+    jsonp(EXEC_URL_PINES, { action: 'validarPin', pin: pin }, function(res) {
+      if (yaResolvio) return;
+      yaResolvio = true;
+      clearTimeout(timeoutId);
+      if (res && res.ok && res.valido) {
+        aceptarPin(pin, res.nombre, res.esMaestro, res.modulos);
+      } else {
+        mostrarErrorPin();
+      }
+    });
+  }
+
+  function aceptarPin(pin, nombre, esMaestro, modulos) {
+    localStorage.setItem('cgv_admin_ok', '1');
+    localStorage.setItem('cgv_pin', pin);
+    localStorage.setItem('cgv_nombre', nombre || '');
+    localStorage.setItem('cgv_es_maestro', esMaestro ? '1' : '0');
+    mostrarDashboard();
+  }
+
+  function mostrarErrorPin() {
+    document.getElementById('pinError').innerText = 'PIN incorrecto. Intentá de nuevo.';
+    document.getElementById('pinInput').value = '';
+    var pinEl = document.getElementById('pinInput');
+    pinEl.classList.add('error');
+    setTimeout(function(){ pinEl.classList.remove('error'); }, 400);
   }
   document.getElementById('pinInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') verificarPin(); });
+
+  function togglePanelPines() {
+    var panel = document.getElementById('panelPines');
+    var visible = panel.style.display === 'block';
+    panel.style.display = visible ? 'none' : 'block';
+    if (!visible) cargarListaPines();
+  }
+
+  function cargarListaPines() {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    var lista = document.getElementById('listaPines');
+    lista.innerHTML = 'Cargando...';
+    jsonp(EXEC_URL_PINES, { action: 'listarPines', pinAdmin: pinAdmin }, function(res) {
+      if (!res || !res.ok) { lista.innerHTML = 'Error: ' + (res ? res.error : 'sin respuesta'); return; }
+      lista.innerHTML = res.pines.map(function(p) {
+        return '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--verdecl);">'
+          + '<span><b>' + p.pin + '</b> — ' + p.nombre + ' (' + p.modulos.join(', ') + ') ' + (p.activo === 'SI' ? '' : '<i>[inactivo]</i>') + '</span>'
+          + (p.pin === '1923' ? '' : '<button onclick="eliminarPinExistente(\'' + p.pin + '\')" style="background:none;border:1px solid #c0392b;color:#c0392b;border-radius:6px;padding:3px 8px;cursor:pointer;">Borrar</button>')
+          + '</div>';
+      }).join('');
+    });
+  }
+
+  function crearPinNuevo() {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    var pin = document.getElementById('nuevoPinValor').value.trim();
+    var nombre = document.getElementById('nuevoPinNombre').value.trim();
+    var modulos = document.getElementById('nuevoPinModulos').value.trim();
+    var msg = document.getElementById('msgPines');
+    if (!pin || !nombre || !modulos) { msg.textContent = 'Completá PIN, nombre y módulos.'; return; }
+    jsonp(EXEC_URL_PINES, { action: 'crearPin', pinAdmin: pinAdmin, pin: pin, nombre: nombre, modulos: modulos }, function(res) {
+      msg.textContent = res && res.ok ? 'PIN agregado.' : 'Error: ' + (res ? res.error : 'sin respuesta');
+      if (res && res.ok) {
+        document.getElementById('nuevoPinValor').value = '';
+        document.getElementById('nuevoPinNombre').value = '';
+        document.getElementById('nuevoPinModulos').value = '';
+        cargarListaPines();
+      }
+    });
+  }
+
+  function eliminarPinExistente(pin) {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    if (!confirm('¿Borrar el PIN ' + pin + '?')) return;
+    jsonp(EXEC_URL_PINES, { action: 'eliminarPin', pinAdmin: pinAdmin, pin: pin }, function(res) {
+      cargarListaPines();
+    });
+  }
 </script>
 
 </body>
