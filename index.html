@@ -164,25 +164,12 @@
   }
 
   function cargarTesoreria() {
-    var SHEET_ID = '1RXdE0ZXtir6njNuG7rfKjgiQlyuaqhzEvXhKs9k0kIk';
-    var query = "select E,F,G where D != '' and J = 'Publicado' order by A desc limit 1";
-    var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq'
-      + '?sheet=MOVIMIENTOS'
-      + '&tq=' + encodeURIComponent(query)
-      + '&tqx=out:json;responseHandler:cbTesoreria';
-
-    window.cbTesoreria = function(res) {
+    var EXEC_URL_TESORERIA = 'https://script.google.com/macros/s/AKfycbzqf-oxbyV-SsQaUZj_C33xSQMX7h4V-g5Ws8EcXQ49nOYpn1_VWVwNhjnj3yd9PD_Syg/exec';
+    jsonp(EXEC_URL_TESORERIA, {}, function(d) {
       var el = document.getElementById('datoTesoreria');
-      try {
-        var fila = res.table.rows[0].c;
-        var resultado = fila[2].v; // G - resultado
-        el.textContent = '$ ' + Number(resultado).toLocaleString('es-AR', { maximumFractionDigits: 0 });
-      } catch (e) { /* deja el placeholder si falla */ }
-    };
-
-    var script = document.createElement('script');
-    script.src = url;
-    document.body.appendChild(script);
+      if (!el || !d || d.error) return;
+      el.textContent = '$ ' + Number(d.resultado).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+    });
   }
 
   function jsonp(url, params, callback) {
