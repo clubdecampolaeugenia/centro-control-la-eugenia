@@ -194,10 +194,10 @@
       var elDato = document.getElementById('datoCuota');
       var elLabel = document.getElementById('labelCuota');
       if (!elDato || !d || !d.vigente) return;
-      elDato.textContent = (d.vigente.lote || '$ —') + ' / ' + (d.vigente.adicional || '$ —');
+      elDato.textContent = d.vigente.adicional || '$ —';
       var prep = d.preparacion;
-      var prepTxt = (prep && prep.determinada) ? (prep.periodo + ': ' + prep.lote + ' / ' + prep.adicional) : (prep ? prep.periodo + ' (pendiente)' : '—');
-      elLabel.textContent = 'lote / adicional · próx: ' + prepTxt;
+      var prepTxt = (prep && prep.determinada) ? (prep.periodo + ': ' + prep.adicional) : (prep ? prep.periodo + ' (pendiente)' : '—');
+      elLabel.textContent = 'adicional · próx: ' + prepTxt;
     });
   }
 
@@ -228,11 +228,12 @@
       delete window[cbName];
       script.remove();
     };
-    var qs = Object.keys(params).map(function(k){
+    var partes = Object.keys(params).map(function(k){
       return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
-    }).join('&');
+    });
+    partes.push('callback=' + cbName);
     var script = document.createElement('script');
-    script.src = url + '?' + qs + '&callback=' + cbName;
+    script.src = url + '?' + partes.join('&');
     document.body.appendChild(script);
   }
 
