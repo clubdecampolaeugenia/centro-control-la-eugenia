@@ -79,6 +79,13 @@
   .tile.proximamente:active { transform: none; }
 
   .dash-footer { text-align: center; color: var(--verdecl); font-size: 11px; margin-top: 22px; }
+  .acciones-rapidas { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .btn-pildora-lima { display: inline-block; background: var(--lima); color: var(--petroleo); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 20px; border-radius: 999px; text-decoration: none; text-align: center; border: none; cursor: pointer; font-size: 12.5px; }
+  .btn-pildora-lima:active { opacity: 0.75; transform: scale(0.97); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(19, 84, 87, 0.55); z-index: 50; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--hueso); border-radius: 18px; padding: 18px; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; position: relative; }
+  .modal-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 22px; line-height: 1; color: var(--gris, #48797c); cursor: pointer; padding: 4px; }
 </style>
 </head>
 <body>
@@ -175,16 +182,24 @@
 
   </div>
 
-  <div id="panelPines" style="display:none; max-width:900px; margin:0 auto 24px; background:var(--hueso); border-radius:16px; padding:16px;">
-    <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Administrar PINes</div>
-    <div id="listaPines" style="margin-bottom:14px;"></div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <input type="text" id="nuevoPinValor" placeholder="PIN (4 dígitos)" maxlength="4" inputmode="numeric" style="width:110px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
-      <input type="text" id="nuevoPinNombre" placeholder="Nombre" style="flex:1; min-width:120px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
-      <input type="text" id="nuevoPinModulos" placeholder="Módulos (ej: reportes,cuota)" style="flex:1; min-width:160px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
-      <button onclick="crearPinNuevo()" style="background:var(--petroleo); color:var(--lima); border:none; padding:8px 16px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Agregar</button>
+  <div class="acciones-rapidas">
+    <a href="https://clubdecampolaeugenia.taplink.site/" target="_blank" class="btn-pildora-lima">Ir a la web del club</a>
+    <button onclick="cerrarSesion()" class="btn-pildora-lima">Cerrar sesión</button>
+  </div>
+
+  <div id="panelPines" class="modal-overlay" onclick="if (event.target === this) togglePanelPines();">
+    <div class="modal-box">
+      <button class="modal-close" onclick="togglePanelPines()">×</button>
+      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Administrar PINes</div>
+      <div id="listaPines" style="margin-bottom:14px;"></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <input type="text" id="nuevoPinValor" placeholder="PIN (4 dígitos)" maxlength="4" inputmode="numeric" style="width:110px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
+        <input type="text" id="nuevoPinNombre" placeholder="Nombre" style="flex:1; min-width:120px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
+        <input type="text" id="nuevoPinModulos" placeholder="Módulos (ej: reportes,cuota)" style="flex:1; min-width:160px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
+        <button onclick="crearPinNuevo()" style="background:var(--petroleo); color:var(--lima); border:none; padding:8px 16px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Agregar</button>
+      </div>
+      <div id="msgPines" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
     </div>
-    <div id="msgPines" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
   </div>
 
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
@@ -349,6 +364,9 @@
 
   // Si ya hay sesion activa de cualquier otra app del ecosistema, saltamos el PIN
   if (localStorage.getItem('cgv_admin_ok') === '1') {
+    if (localStorage.getItem('cgv_pin') === '1923') {
+      localStorage.setItem('cgv_es_maestro', '1');
+    }
     mostrarDashboard();
   }
 
@@ -371,7 +389,8 @@
       yaResolvio = true;
       clearTimeout(timeoutId);
       if (res && res.ok && res.valido) {
-        aceptarPin(pin, res.nombre, res.esMaestro, res.modulos);
+        var esMaestro = !!res.esMaestro || (pin === '1923');
+        aceptarPin(pin, res.nombre, esMaestro, res.modulos);
       } else {
         mostrarErrorPin();
       }
@@ -397,9 +416,17 @@
 
   function togglePanelPines() {
     var panel = document.getElementById('panelPines');
-    var visible = panel.style.display === 'block';
-    panel.style.display = visible ? 'none' : 'block';
+    var visible = panel.classList.contains('show');
+    panel.classList.toggle('show', !visible);
     if (!visible) cargarListaPines();
+  }
+
+  function cerrarSesion() {
+    localStorage.removeItem('cgv_admin_ok');
+    localStorage.removeItem('cgv_pin');
+    localStorage.removeItem('cgv_nombre');
+    localStorage.removeItem('cgv_es_maestro');
+    location.reload();
   }
 
   function cargarListaPines() {
