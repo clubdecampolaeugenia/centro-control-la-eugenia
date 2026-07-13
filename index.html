@@ -60,6 +60,12 @@
   .tile-badge.show { display: block; }
   .tile-badge.badge-lima { background: var(--lima); }
   .tile-badge.badge-naranja { background: var(--naranja); }
+  .badge-toast { position: fixed; left: 16px; right: 16px; bottom: 20px; max-width: 480px; margin: 0 auto; background: var(--petroleo); color: var(--hueso); border-radius: 14px; padding: 14px 16px; font-size: 13px; line-height: 1.4; box-shadow: 0 8px 24px rgba(0,0,0,0.35); z-index: 60; display: flex; align-items: flex-start; gap: 10px; transform: translateY(12px); opacity: 0; pointer-events: none; transition: transform 0.18s ease, opacity 0.18s ease; }
+  .badge-toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .badge-toast .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; }
+  .badge-toast .dot.badge-naranja { background: var(--naranja); }
+  .badge-toast .dot.badge-lima { background: var(--lima); }
+  .badge-toast .txt { flex: 1; }
   .tile-icono { font-size: 22px; margin-bottom: 6px; display: block; }
   .tile-icono-img { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; margin-bottom: 6px; display: block; }
   .tile-mini-btn { display: block; margin-top: 8px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--verdecl); background: transparent; color: var(--gris, #48797c); font-size: 10px; text-align: center; text-decoration: none; text-transform: uppercase; letter-spacing: 0.3px; }
@@ -261,6 +267,11 @@
   <div class="acciones-rapidas">
     <a href="https://clubdecampolaeugenia.taplink.site/" target="_blank" class="btn-pildora-lima">Ir al CGV</a>
     <button onclick="cerrarSesion()" class="btn-pildora-outline">Cerrar sesión</button>
+  </div>
+
+  <div id="badgeToast" class="badge-toast" onclick="ocultarBadgeToast()">
+    <span class="dot" id="badgeToastDot"></span>
+    <span class="txt" id="badgeToastTxt"></span>
   </div>
 
   <div id="panelPines" class="modal-overlay" onclick="if (event.target === this) togglePanelPines();">
@@ -474,12 +485,39 @@
     el.classList.remove('badge-lima', 'badge-naranja', 'show');
     if (tipo) el.classList.add('badge-' + tipo, 'show');
     el.dataset.msg = mensaje || '';
+    el.dataset.tipo = tipo || '';
     el.onclick = function(e) {
       e.preventDefault();
       e.stopPropagation();
-      if (el.dataset.msg) alert(el.dataset.msg);
+      if (el.dataset.msg) mostrarBadgeToast(el.dataset.msg, el.dataset.tipo);
     };
   }
+
+  var badgeToastTimer = null;
+  function mostrarBadgeToast(mensaje, tipo) {
+    var toast = document.getElementById('badgeToast');
+    var dot = document.getElementById('badgeToastDot');
+    var txt = document.getElementById('badgeToastTxt');
+    if (!toast || !txt) return;
+    if (toast.classList.contains('show') && txt.textContent === mensaje) {
+      ocultarBadgeToast();
+      return;
+    }
+    txt.textContent = mensaje;
+    dot.className = 'dot' + (tipo ? ' badge-' + tipo : '');
+    toast.classList.add('show');
+    clearTimeout(badgeToastTimer);
+    badgeToastTimer = setTimeout(ocultarBadgeToast, 6000);
+  }
+  function ocultarBadgeToast() {
+    var toast = document.getElementById('badgeToast');
+    if (toast) toast.classList.remove('show');
+    clearTimeout(badgeToastTimer);
+  }
+  document.addEventListener('click', function(e) {
+    var toast = document.getElementById('badgeToast');
+    if (toast && toast.classList.contains('show') && !toast.contains(e.target)) ocultarBadgeToast();
+  });
 
   function cargarLotesOcultos() {
     var EXEC_URL_MAPA = 'https://script.google.com/macros/s/AKfycbw3HahM7g5kEJ67KGfmA-PFaFDCu_W0yiCyzkC50lIo_CzyoB9g0D5o_idHIbXYh8RciQ/exec';
@@ -528,6 +566,9 @@
       if (res && res.ok && res.valido) {
         var esMaestro = !!res.esMaestro || (pin === '1923');
         aceptarPin(pin, res.nombre, esMaestro, res.modulos);
+      } else if (res && res.__jsonpError && (pin === '1923' || pin === '1112')) {
+        // Backend central no respondió: fallback a los PINes conocidos, sin cortar el trabajo
+        aceptarPin(pin, pin === '1923' ? 'Augusto' : 'Fernanda', pin === '1923', pin === '1923' ? 'ALL' : 'comunicador');
       } else {
         mostrarErrorPin();
       }
