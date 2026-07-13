@@ -82,9 +82,9 @@
 
   .dash-footer { text-align: center; color: var(--verdecl); font-size: 11px; margin-top: 22px; }
   .acciones-rapidas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
-  .btn-pildora-lima { display: flex; align-items: center; justify-content: center; background: var(--lima); color: var(--petroleo); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 14px; border-radius: 16px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 16px; min-height: 152px; box-sizing: border-box; }
+  .btn-pildora-lima { display: flex; align-items: center; justify-content: center; background: var(--lima); color: var(--petroleo); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 14px 10px; border-radius: 999px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 14px; box-sizing: border-box; }
   .btn-pildora-lima:active { opacity: 0.75; transform: scale(0.97); }
-  .btn-pildora-outline { display: flex; align-items: center; justify-content: center; background: var(--petroleo); color: var(--lima); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 14px; border-radius: 16px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 16px; min-height: 152px; box-sizing: border-box; }
+  .btn-pildora-outline { display: flex; align-items: center; justify-content: center; background: var(--petroleo); color: var(--lima); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 14px 10px; border-radius: 999px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 14px; box-sizing: border-box; }
   .btn-pildora-outline:active { opacity: 0.75; transform: scale(0.97); }
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(19, 84, 87, 0.55); z-index: 50; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
   .modal-overlay.show { display: flex; }
@@ -185,6 +185,11 @@
 
   <div class="grid">
 
+    <div class="tile destacada proximamente tile-span2">
+      <div class="tile-head"><span class="tile-icono">📋</span><div class="tile-titulo">Solicitudes</div></div>
+      <div class="tile-label" style="margin-top:8px;">Próximamente</div>
+    </div>
+
     <a class="tile" data-modulo="cuota" href="https://clubdecampolaeugenia.github.io/cuota-la-eugenia/" target="_blank">
       <span class="tile-badge" id="badgeCuota"></span>
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/UBdZJFW.png" alt=""><div class="tile-titulo" id="tituloCuota">Cuota</div></div>
@@ -239,11 +244,6 @@
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/KZF93BF.png" alt=""><div class="tile-titulo">Stock del club</div></div>
       <div class="tile-label">abrir app</div>
     </a>
-
-    <div class="tile destacada proximamente tile-span2">
-      <div class="tile-head"><span class="tile-icono">📋</span><div class="tile-titulo">Solicitudes</div></div>
-      <div class="tile-label" style="margin-top:8px;">Próximamente</div>
-    </div>
 
     <div class="tile proximamente">
       <div class="tile-head"><span class="tile-icono">🗺️</span><div class="tile-titulo">Lotes y socios</div></div>
