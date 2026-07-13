@@ -56,6 +56,7 @@
   .tile:active { transform: scale(0.97); }
   .tile:hover { border-color: var(--naranja); }
   .tile-badge { position: absolute; top: 10px; right: 10px; width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 2px var(--hueso); display: none; }
+  .tile-badge::before { content: ''; position: absolute; inset: -10px; }
   .tile-badge.show { display: block; }
   .tile-badge.badge-lima { background: var(--lima); }
   .tile-badge.badge-naranja { background: var(--naranja); }
@@ -73,16 +74,17 @@
 
   .tile.destacada { border-color: var(--naranja); }
   .tile.destacada .tile-dato { color: var(--naranja); }
+  .tile-span2 { grid-column: 1 / -1; }
 
   .tile.proximamente { background: transparent; border: 2px dashed var(--verdecl); cursor: default; opacity: 0.75; }
   .tile.proximamente .tile-titulo, .tile.proximamente .tile-icono { color: var(--verdecl); }
   .tile.proximamente:active { transform: none; }
 
   .dash-footer { text-align: center; color: var(--verdecl); font-size: 11px; margin-top: 22px; }
-  .acciones-rapidas { display: flex; justify-content: center; gap: 10px; flex-wrap: nowrap; margin-top: 18px; }
-  .btn-pildora-lima { display: inline-block; background: var(--lima); color: var(--petroleo); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 20px; border-radius: 999px; text-decoration: none; text-align: center; border: none; cursor: pointer; font-size: 12.5px; white-space: nowrap; }
+  .acciones-rapidas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .btn-pildora-lima { display: flex; align-items: center; justify-content: center; background: var(--lima); color: var(--petroleo); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 14px; border-radius: 16px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 16px; min-height: 152px; box-sizing: border-box; }
   .btn-pildora-lima:active { opacity: 0.75; transform: scale(0.97); }
-  .btn-pildora-outline { display: inline-block; background: var(--petroleo); color: var(--lima); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 20px; border-radius: 999px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 12.5px; white-space: nowrap; }
+  .btn-pildora-outline { display: flex; align-items: center; justify-content: center; background: var(--petroleo); color: var(--lima); font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: 0.4px; padding: 14px; border-radius: 16px; text-decoration: none; text-align: center; border: 2px solid var(--lima); cursor: pointer; font-size: 16px; min-height: 152px; box-sizing: border-box; }
   .btn-pildora-outline:active { opacity: 0.75; transform: scale(0.97); }
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(19, 84, 87, 0.55); z-index: 50; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
   .modal-overlay.show { display: flex; }
@@ -183,7 +185,7 @@
 
   <div class="grid">
 
-    <a class="tile" href="https://clubdecampolaeugenia.github.io/cuota-la-eugenia/" target="_blank">
+    <a class="tile" data-modulo="cuota" href="https://clubdecampolaeugenia.github.io/cuota-la-eugenia/" target="_blank">
       <span class="tile-badge" id="badgeCuota"></span>
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/UBdZJFW.png" alt=""><div class="tile-titulo" id="tituloCuota">Cuota</div></div>
       <div class="tile-dato" id="datoCuota">$ —</div>
@@ -191,7 +193,7 @@
       <div class="tile-label" id="labelCuota">vigente</div>
     </a>
 
-    <a class="tile" href="https://clubdecampolaeugenia.github.io/tesoreria-la-eugenia/" target="_blank">
+    <a class="tile" data-modulo="tesoreria" href="https://clubdecampolaeugenia.github.io/tesoreria-la-eugenia/" target="_blank">
       <span class="tile-badge" id="badgeTesoreria"></span>
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/OBFb4tJ.png" alt=""><div class="tile-titulo" id="tituloTesoreria">Tesorería</div></div>
       <div class="tile-dato" id="datoTesoreria">$ —</div>
@@ -200,7 +202,7 @@
       <div class="tile-sub" id="subTesoreriaEg">Eg —</div>
     </a>
 
-    <div class="tile" style="cursor:default;">
+    <div class="tile" data-modulo="boletin" style="cursor:default;">
       <span class="tile-badge" id="badgeBoletin"></span>
       <a href="https://clubdecampolaeugenia.github.io/boletin-la-eugenia/?admin=1&pin=1923" target="_blank" style="text-decoration:none; color:inherit; display:block;">
         <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/2jCxrty.png" alt=""><div class="tile-titulo">Boletín</div></div>
@@ -212,18 +214,18 @@
       <a href="https://clubdecampolaeugenia.github.io/boletin-la-eugenia/ver/" target="_blank" class="tile-mini-btn" id="btnVerBoletin">Boletín</a>
     </div>
 
-    <a class="tile" href="https://clubdecampolaeugenia.github.io/reportes-vecinales/" target="_blank">
+    <a class="tile" data-modulo="reportes" href="https://clubdecampolaeugenia.github.io/reportes-vecinales/" target="_blank">
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/ZPMzq4X.png" alt=""><div class="tile-titulo">Reportes vecinales</div></div>
       <div class="tile-label">abrir app</div>
     </a>
 
-    <a class="tile" href="https://clubdecampolaeugenia.github.io/comunicador-la-eugenia/" target="_blank">
+    <a class="tile" data-modulo="comunicador" href="https://clubdecampolaeugenia.github.io/comunicador-la-eugenia/" target="_blank">
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/UgiYLGk.png" alt=""><div class="tile-titulo">Comunicador</div></div>
       <div class="tile-dato">—</div>
       <div class="tile-label">enviados hoy</div>
     </a>
 
-    <div class="tile" style="cursor:default;">
+    <div class="tile" data-modulo="mapa" style="cursor:default;">
       <a href="https://clubdecampolaeugenia.github.io/panel-mapa-la-eugenia/?pin=1923" target="_blank" style="text-decoration:none; color:inherit; display:block;">
         <div class="tile-head"><img class="tile-icono-img" src="data:image/png;base64,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" alt="">
         <div class="tile-titulo">Cómo Llegar</div></div>
@@ -233,12 +235,12 @@
       <a href="https://clubdecampolaeugenia.github.io/mapa-la-eugenia/" target="_blank" class="tile-mini-btn">Ver mapa público</a>
     </div>
 
-    <a class="tile" href="https://clubdecampolaeugenia.github.io/stock-del-club/" target="_blank">
+    <a class="tile" data-modulo="stock" href="https://clubdecampolaeugenia.github.io/stock-del-club/" target="_blank">
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/KZF93BF.png" alt=""><div class="tile-titulo">Stock del club</div></div>
       <div class="tile-label">abrir app</div>
     </a>
 
-    <div class="tile destacada proximamente">
+    <div class="tile destacada proximamente tile-span2">
       <div class="tile-head"><span class="tile-icono">📋</span><div class="tile-titulo">Solicitudes</div></div>
       <div class="tile-label" style="margin-top:8px;">Próximamente</div>
     </div>
@@ -299,14 +301,38 @@
   function mostrarDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     precargaOculta = false;
-    precargaPendientes = 5;
     document.getElementById('precargaScreen').classList.add('show');
+
+    var esMaestro = localStorage.getItem('cgv_es_maestro') === '1';
+    var modulosRaw = (localStorage.getItem('cgv_modulos') || '').toLowerCase();
+    var modulos = modulosRaw.split(',').map(function(m){ return m.trim(); }).filter(Boolean);
+    var tieneTodo = esMaestro || modulos.indexOf('all') !== -1;
+    function tienePermiso(mod) { return tieneTodo || modulos.indexOf(mod) !== -1; }
+
+    // Oculto del grid las cards que no correspondan al PIN usado
+    var tiles = document.querySelectorAll('.tile[data-modulo]');
+    for (var i = 0; i < tiles.length; i++) {
+      var mod = tiles[i].getAttribute('data-modulo');
+      tiles[i].style.display = tienePermiso(mod) ? '' : 'none';
+    }
+
+    // Solo le pido al backend los datos de los módulos habilitados para este PIN
+    var cargas = [];
+    if (tienePermiso('mapa')) cargas.push(cargarLotesOcultos);
+    if (tienePermiso('tesoreria')) cargas.push(cargarTesoreria);
+    if (tienePermiso('boletin')) cargas.push(cargarBoletin);
+    if (tienePermiso('cuota')) cargas.push(cargarCuota);
+
+    precargaPendientes = 0;
+    cargas.forEach(function(fn) { precargaPendientes += (fn === cargarBoletin) ? 2 : 1; });
     setTimeout(ocultarPrecarga, 12000);
-    cargarLotesOcultos();
-    cargarTesoreria();
-    cargarBoletin();
-    cargarCuota();
-    if (localStorage.getItem('cgv_es_maestro') === '1') {
+    if (precargaPendientes === 0) {
+      ocultarPrecarga();
+    } else {
+      cargas.forEach(function(fn) { fn(); });
+    }
+
+    if (esMaestro) {
       document.getElementById('tilePines').style.display = 'block';
       document.getElementById('datoPines').textContent = localStorage.getItem('cgv_nombre') || '✓';
     }
@@ -338,7 +364,7 @@
       var elLabel = document.getElementById('labelCuota');
       var elTitulo = document.getElementById('tituloCuota');
       if (!elDato) return;
-      if (!d || d.__jsonpError || !d.vigente) { marcarBadge('badgeCuota', 'naranja'); return; }
+      if (!d || d.__jsonpError || !d.vigente) { marcarBadge('badgeCuota', 'naranja', 'Cuota no respondió a tiempo. Puede ser un problema temporal del servicio — probá de nuevo en unos minutos.'); return; }
       elDato.textContent = d.vigente.lote || '$ —';
       if (elSub) elSub.textContent = d.vigente.adicional || '—';
       if (elTitulo && d.vigente.periodo) {
@@ -349,7 +375,7 @@
         var mesProx = capitalizarMes(prep.periodo);
         var valorProx = (prep.determinada && prep.adicional) ? prep.adicional : 'pendiente';
         elLabel.textContent = 'Prox. cuota ' + mesProx + ': ' + valorProx;
-        marcarBadge('badgeCuota', prep.determinada ? 'lima' : null);
+        marcarBadge('badgeCuota', prep.determinada ? 'lima' : null, prep.determinada ? ('Ya está determinada la cuota de ' + mesProx + ': ' + valorProx) : '');
       } else {
         elLabel.textContent = 'vigente';
         marcarBadge('badgeCuota', null);
@@ -367,7 +393,7 @@
       var elSusc = document.getElementById('subBoletinSuscriptores');
       var elLabel = document.getElementById('labelBoletinDesglose');
       if (!elSusc) return;
-      if (!d || d.__jsonpError || !d.ok) { marcarBadge('badgeBoletin', 'naranja'); return; }
+      if (!d || d.__jsonpError || !d.ok) { marcarBadge('badgeBoletin', 'naranja', 'Boletín no respondió a tiempo. Puede ser un problema temporal del servicio — probá de nuevo en unos minutos.'); return; }
       elSusc.textContent = d.activos + ' suscriptores';
       elLabel.textContent = (d.pendientes || 0) + ' pend. · ' + (d.bajas || 0) + ' baja(s) · ' + (d.activosWeb || 0) + ' web / ' + (d.activosManual || 0) + ' manual';
       boletinListarOk = true;
@@ -377,12 +403,12 @@
       var elDato = document.getElementById('datoBoletinNovedades');
       var elCaption = document.getElementById('subBoletinNovCaption');
       if (!elDato) return;
-      if (!d || d.__jsonpError) { marcarBadge('badgeBoletin', 'naranja'); return; }
+      if (!d || d.__jsonpError) { marcarBadge('badgeBoletin', 'naranja', 'Boletín no respondió a tiempo. Puede ser un problema temporal del servicio — probá de nuevo en unos minutos.'); return; }
       var n = (d.novedades) ? d.novedades.length : 0;
       elDato.textContent = n;
       if (elCaption) elCaption.textContent = (n === 1 ? 'novedad para ' : 'novedades para ') + mesSiguienteNombre();
       boletinNovedadesOk = true;
-      if (boletinListarOk) marcarBadge('badgeBoletin', (n > 0) ? 'lima' : null);
+      if (boletinListarOk) marcarBadge('badgeBoletin', (n > 0) ? 'lima' : null, (n > 0) ? ('Hay ' + n + (n === 1 ? ' novedad cargada' : ' novedades cargadas') + ' para preparar el próximo boletín.') : '');
     });
   }
 
@@ -396,14 +422,14 @@
       var elLabel = document.getElementById('labelTesoreria');
       var elTitulo = document.getElementById('tituloTesoreria');
       if (!el) return;
-      if (!d || d.__jsonpError || d.error) { marcarBadge('badgeTesoreria', 'naranja'); return; }
+      if (!d || d.__jsonpError || d.error) { marcarBadge('badgeTesoreria', 'naranja', 'Tesorería no respondió a tiempo. Puede ser un problema temporal del servicio — probá de nuevo en unos minutos.'); return; }
       var fmt = function(v) { return '$ ' + Number(v).toLocaleString('es-AR', { maximumFractionDigits: 0 }); };
       el.textContent = fmt(d.resultado);
       if (elIng) elIng.textContent = 'Ing ' + fmt(d.ingresos);
       if (elEg) elEg.textContent = 'Eg ' + fmt(d.egresos);
       if (elLabel) elLabel.textContent = 'resultados del mes';
       if (elTitulo && d.periodo) elTitulo.textContent = 'Tesorería · ' + capitalizarMes(d.periodo);
-      marcarBadge('badgeTesoreria', (Number(d.resultado) < 0) ? 'naranja' : null);
+      marcarBadge('badgeTesoreria', (Number(d.resultado) < 0) ? 'naranja' : null, (Number(d.resultado) < 0) ? 'El resultado del mes está en negativo. Revisá Tesorería.' : '');
     });
   }
 
@@ -442,11 +468,17 @@
     document.body.appendChild(script);
   }
 
-  function marcarBadge(id, tipo) {
+  function marcarBadge(id, tipo, mensaje) {
     var el = document.getElementById(id);
     if (!el) return;
     el.classList.remove('badge-lima', 'badge-naranja', 'show');
     if (tipo) el.classList.add('badge-' + tipo, 'show');
+    el.dataset.msg = mensaje || '';
+    el.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (el.dataset.msg) alert(el.dataset.msg);
+    };
   }
 
   function cargarLotesOcultos() {
@@ -465,8 +497,14 @@
   if (localStorage.getItem('cgv_admin_ok') === '1') {
     if (localStorage.getItem('cgv_pin') === '1923') {
       localStorage.setItem('cgv_es_maestro', '1');
+      localStorage.setItem('cgv_modulos', 'ALL');
     }
-    mostrarDashboard();
+    if (!localStorage.getItem('cgv_modulos')) {
+      // Sesion vieja sin info de modulos: por seguridad, pedimos loguearse de nuevo
+      localStorage.removeItem('cgv_admin_ok');
+    } else {
+      mostrarDashboard();
+    }
   }
 
   function verificarPin() {
@@ -477,7 +515,7 @@
       yaResolvio = true;
       // Backend central no respondió: fallback a los PINes conocidos, sin cortar el trabajo
       if (pin === '1923' || pin === '1112') {
-        aceptarPin(pin, pin === '1923' ? 'Augusto' : 'Fernanda', pin === '1923');
+        aceptarPin(pin, pin === '1923' ? 'Augusto' : 'Fernanda', pin === '1923', pin === '1923' ? 'ALL' : 'comunicador');
       } else {
         mostrarErrorPin();
       }
@@ -501,6 +539,7 @@
     localStorage.setItem('cgv_pin', pin);
     localStorage.setItem('cgv_nombre', nombre || '');
     localStorage.setItem('cgv_es_maestro', esMaestro ? '1' : '0');
+    localStorage.setItem('cgv_modulos', Array.isArray(modulos) ? modulos.join(',') : (modulos || ''));
     mostrarDashboard();
   }
 
