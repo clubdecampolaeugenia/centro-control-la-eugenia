@@ -595,19 +595,29 @@
         } else {
           botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
         }
-        return '<div style="border:1px solid var(--verdecl); border-radius:10px; padding:10px 12px; margin-bottom:8px;">' +
+        var fondo = esAccionable ? 'background:var(--verdecl); border:1px solid var(--verdecl);' : 'border:1px solid var(--verdecl);';
+        var colorTexto = esAccionable ? 'var(--hueso)' : 'var(--petroleo)';
+        var colorSub = esAccionable ? 'var(--hueso)' : 'var(--gris)';
+        var colorMsg = esAccionable ? 'var(--hueso)' : 'var(--tinta)';
+        var contactoHtml = s.solicitanteContacto
+          ? '<div style="font-size:12px; color:' + colorSub + '; margin-top:2px;">' +
+            (s.solicitanteContacto.indexOf('@') !== -1
+              ? '<a href="mailto:' + s.solicitanteContacto + '" style="color:' + colorSub + '; text-decoration:underline;">' + s.solicitanteContacto + '</a>'
+              : s.solicitanteContacto) +
+            (s.vinculoVerificado === 'SI' ? ' · vínculo verificado' : ' · vínculo sin verificar') + '</div>'
+          : '';
+        return '<div style="border-radius:10px; padding:10px 12px; margin-bottom:8px; ' + fondo + '">' +
           '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">' +
-          '<strong style="font-size:13px; color:var(--petroleo);">' + (s.origen || '(sin especificar)') + '</strong>' +
-          '<span style="font-size:11px; color:var(--gris);">' + (s.fecha || '') + '</span>' +
+          '<strong style="font-size:13px; color:' + colorTexto + ';">' + (s.origen || '(sin especificar)') + '</strong>' +
+          '<span style="font-size:11px; color:' + colorSub + ';">' + (s.fecha || '') + '</span>' +
           '</div>' +
-          '<div style="font-size:13px; margin-top:4px;">' +
+          '<div style="font-size:13px; margin-top:4px; color:' + colorTexto + ';">' +
           (s.lote ? '<b>Lote:</b> ' + s.lote + ' &nbsp; ' : '') +
           (s.solicitanteNombre ? '<b>Solicitante:</b> ' + s.solicitanteNombre : '') +
           (s.solicitanteVinculacion ? ' (' + s.solicitanteVinculacion + ')' : '') +
           '</div>' +
-          (s.solicitanteContacto ? '<div style="font-size:12px; color:var(--gris); margin-top:2px;">' + s.solicitanteContacto +
-            (s.vinculoVerificado === 'SI' ? ' · vínculo verificado' : ' · vínculo sin verificar') + '</div>' : '') +
-          (s.mensaje ? '<div style="font-size:13px; margin-top:4px; color:var(--tinta);">' + s.mensaje + '</div>' : '') +
+          contactoHtml +
+          (s.mensaje ? '<div style="font-size:13px; margin-top:4px; color:' + colorMsg + ';">' + s.mensaje + '</div>' : '') +
           (s.motivoRechazo ? '<div style="font-size:12px; margin-top:4px; color:#c0392b;"><b>Motivo:</b> ' + s.motivoRechazo + '</div>' : '') +
           botones +
           '</div>';
@@ -654,7 +664,7 @@
       } else {
         msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
       }
-    }, 20000);
+    }, 30000);
   }
 
   function actualizarEstadoSolicitud(id, estado, motivo) {
@@ -674,7 +684,7 @@
       } else {
         msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
       }
-    }, 20000);
+    }, 30000);
   }
 
   var EXEC_URL_PINES = 'https://script.google.com/macros/s/AKfycbyt4PoL_IWHaXRlMNDy2cPtWmvj7f0-DLpSe5IHir54yPDNg8osPtX_0ezoopC4aGR_7A/exec';
