@@ -191,9 +191,11 @@
 
   <div class="grid">
 
-    <div class="tile destacada proximamente tile-span2">
+    <div class="tile destacada tile-span2" data-modulo="solicitudes" id="tileSolicitudes" style="cursor:pointer;" onclick="togglePanelSolicitudes()">
+      <span class="tile-badge" id="badgeSolicitudes"></span>
       <div class="tile-head"><span class="tile-icono">📋</span><div class="tile-titulo">Solicitudes</div></div>
-      <div class="tile-label" style="margin-top:8px;">Próximamente</div>
+      <div class="tile-dato" id="datoSolicitudes">—</div>
+      <div class="tile-label" id="labelSolicitudes">pendientes</div>
     </div>
 
     <a class="tile" data-modulo="cuota" href="https://clubdecampolaeugenia.github.io/cuota-la-eugenia/" target="_blank">
@@ -289,6 +291,15 @@
     </div>
   </div>
 
+  <div id="panelSolicitudes" class="modal-overlay" onclick="if (event.target === this) togglePanelSolicitudes();">
+    <div class="modal-box">
+      <button class="modal-close" onclick="togglePanelSolicitudes()">×</button>
+      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Solicitudes pendientes</div>
+      <div id="listaSolicitudes" style="margin-bottom:14px;"></div>
+      <div id="msgSolicitudes" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
+    </div>
+  </div>
+
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
 </div>
 
@@ -333,6 +344,7 @@
     if (tienePermiso('tesoreria')) cargas.push(cargarTesoreria);
     if (tienePermiso('boletin')) cargas.push(cargarBoletin);
     if (tienePermiso('cuota')) cargas.push(cargarCuota);
+    if (tienePermiso('solicitudes')) cargas.push(cargarSolicitudes);
 
     precargaPendientes = 0;
     cargas.forEach(function(fn) { precargaPendientes += (fn === cargarBoletin) ? 2 : 1; });
@@ -533,6 +545,70 @@
       var el = document.getElementById('datoLotesOcultos');
       if (!el) return;
       el.textContent = (res && res.ok && res.data) ? res.data.length : '—';
+    });
+  }
+
+  var EXEC_URL_SOLICITUDES = 'https://script.google.com/macros/s/AKfycbzNVpVv8UHCBhd44q0e6k-HtLPHhOXxnmWw3nOaOerXnmyazWlnO_WDrS_dLWqOVi13/exec';
+
+  function cargarSolicitudes() {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'listarPendientes', pinAdmin: pinAdmin }, function(res) {
+      marcarCargaLista();
+      var dato = document.getElementById('datoSolicitudes');
+      if (!dato) return;
+      if (!res || !res.ok) { dato.textContent = '—'; return; }
+      var n = res.solicitudes.length;
+      dato.textContent = n;
+      marcarBadge('badgeSolicitudes', n > 0 ? 'naranja' : null, n > 0 ? (n + ' solicitud' + (n > 1 ? 'es' : '') + ' esperando revisión') : '');
+    });
+  }
+
+  function togglePanelSolicitudes() {
+    var panel = document.getElementById('panelSolicitudes');
+    var visible = panel.classList.contains('show');
+    panel.classList.toggle('show', !visible);
+    if (!visible) cargarListaSolicitudes();
+  }
+
+  function cargarListaSolicitudes() {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    var lista = document.getElementById('listaSolicitudes');
+    lista.innerHTML = 'Cargando...';
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'listarPendientes', pinAdmin: pinAdmin }, function(res) {
+      if (!res || !res.ok) { lista.innerHTML = 'Error: ' + (res ? res.error : 'sin respuesta'); return; }
+      if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--petroleo); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
+      lista.innerHTML = res.solicitudes.map(function(s) {
+        return '<div style="border:1px solid var(--verdecl); border-radius:10px; padding:10px 12px; margin-bottom:8px;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">' +
+          '<strong style="font-size:13px; color:var(--petroleo);">' + (s.origen || '(sin especificar)') + '</strong>' +
+          '<span style="font-size:11px; color:var(--gris);">' + (s.fecha || '') + '</span>' +
+          '</div>' +
+          '<div style="font-size:13px; margin-top:4px;">' +
+          (s.lote ? '<b>Lote:</b> ' + s.lote + ' &nbsp; ' : '') +
+          (s.nombre ? '<b>Nombre:</b> ' + s.nombre : '') +
+          '</div>' +
+          (s.mensaje ? '<div style="font-size:13px; margin-top:4px; color:var(--tinta);">' + s.mensaje + '</div>' : '') +
+          '<div style="display:flex; gap:8px; margin-top:8px;">' +
+          '<button onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Aprobar</button>' +
+          '<button onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'RECHAZADA\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    });
+  }
+
+  function actualizarEstadoSolicitud(id, estado) {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    var msg = document.getElementById('msgSolicitudes');
+    msg.textContent = 'Actualizando...';
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado }, function(res) {
+      if (res && res.ok) {
+        msg.textContent = '';
+        cargarListaSolicitudes();
+        cargarSolicitudes();
+      } else {
+        msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
+      }
     });
   }
 
