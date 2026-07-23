@@ -552,7 +552,7 @@
 
   function cargarSolicitudes() {
     var pinAdmin = localStorage.getItem('cgv_pin');
-    jsonp(EXEC_URL_SOLICITUDES, { action: 'listarPendientes', pinAdmin: pinAdmin }, function(res) {
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
       marcarCargaLista();
       var dato = document.getElementById('datoSolicitudes');
       if (!dato) return;
@@ -574,10 +574,17 @@
     var pinAdmin = localStorage.getItem('cgv_pin');
     var lista = document.getElementById('listaSolicitudes');
     lista.innerHTML = 'Cargando...';
-    jsonp(EXEC_URL_SOLICITUDES, { action: 'listarPendientes', pinAdmin: pinAdmin }, function(res) {
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
       if (!res || !res.ok) { lista.innerHTML = 'Error: ' + (res ? res.error : 'sin respuesta'); return; }
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--petroleo); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
       lista.innerHTML = res.solicitudes.map(function(s) {
+        var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
+        var botones = esAccionable
+          ? '<div style="display:flex; gap:8px; margin-top:8px;">' +
+            '<button onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Aprobar</button>' +
+            '<button onclick="rechazarSolicitud(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
+            '</div>'
+          : '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
         return '<div style="border:1px solid var(--verdecl); border-radius:10px; padding:10px 12px; margin-bottom:8px;">' +
           '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">' +
           '<strong style="font-size:13px; color:var(--petroleo);">' + (s.origen || '(sin especificar)') + '</strong>' +
@@ -585,23 +592,30 @@
           '</div>' +
           '<div style="font-size:13px; margin-top:4px;">' +
           (s.lote ? '<b>Lote:</b> ' + s.lote + ' &nbsp; ' : '') +
-          (s.nombre ? '<b>Nombre:</b> ' + s.nombre : '') +
+          (s.solicitanteNombre ? '<b>Solicitante:</b> ' + s.solicitanteNombre : '') +
+          (s.solicitanteVinculacion ? ' (' + s.solicitanteVinculacion + ')' : '') +
           '</div>' +
+          (s.solicitanteContacto ? '<div style="font-size:12px; color:var(--gris); margin-top:2px;">' + s.solicitanteContacto +
+            (s.vinculoVerificado === 'SI' ? ' · vínculo verificado' : ' · vínculo sin verificar') + '</div>' : '') +
           (s.mensaje ? '<div style="font-size:13px; margin-top:4px; color:var(--tinta);">' + s.mensaje + '</div>' : '') +
-          '<div style="display:flex; gap:8px; margin-top:8px;">' +
-          '<button onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Aprobar</button>' +
-          '<button onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'RECHAZADA\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
-          '</div>' +
+          (s.motivoRechazo ? '<div style="font-size:12px; margin-top:4px; color:#c0392b;"><b>Motivo:</b> ' + s.motivoRechazo + '</div>' : '') +
+          botones +
           '</div>';
       }).join('');
     });
   }
 
-  function actualizarEstadoSolicitud(id, estado) {
+  function rechazarSolicitud(id) {
+    var motivo = prompt('Motivo del rechazo (se le envía al solicitante):', '');
+    if (motivo === null) return; // canceló
+    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo);
+  }
+
+  function actualizarEstadoSolicitud(id, estado, motivo) {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var msg = document.getElementById('msgSolicitudes');
     msg.textContent = 'Actualizando...';
-    jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado }, function(res) {
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
       if (res && res.ok) {
         msg.textContent = '';
         cargarListaSolicitudes();
