@@ -385,13 +385,16 @@
       if (prep && prep.periodo) {
         var mesProx = capitalizarMes(prep.periodo);
         if (prep.determinada && prep.lote && prep.adicional) {
+          elLabel.style.cssText = 'margin-top:6px; padding-top:6px; border-top:1px solid var(--verdecl);';
           elLabel.innerHTML = '<b><i>' + mesProx + ':</i></b><br><i>Lote: ' + prep.lote + '</i><br><i>Lote adicional: ' + prep.adicional + '</i>';
           marcarBadge('badgeCuota', 'lima', 'Ya está determinada la cuota de ' + mesProx + ': Lote ' + prep.lote + ' / Lote adicional ' + prep.adicional);
         } else {
+          elLabel.style.cssText = '';
           elLabel.textContent = 'Prox. cuota ' + mesProx + ': pendiente';
           marcarBadge('badgeCuota', null);
         }
       } else {
+        elLabel.style.cssText = '';
         elLabel.textContent = 'vigente';
         marcarBadge('badgeCuota', null);
       }
