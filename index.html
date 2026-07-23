@@ -98,6 +98,13 @@
   .modal-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 22px; line-height: 1; color: var(--gris, #48797c); cursor: pointer; padding: 4px; }
   #precargaScreen { display: none; position: fixed; inset: 0; background: var(--petroleo); z-index: 100; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 24px; box-sizing: border-box; }
   #precargaScreen.show { display: flex; }
+
+  #solicitudesScreen { display: none; position: fixed; inset: 0; background: var(--petroleo); z-index: 90; overflow-y: auto; box-sizing: border-box; }
+  #solicitudesScreen.show { display: block; animation: fadeInScreen 0.2s ease-out; }
+  .solicitudes-header { position: sticky; top: 0; background: var(--petroleo); padding: 18px 16px 12px; display: flex; align-items: center; gap: 14px; z-index: 2; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .solicitudes-volver { background: none; border: none; color: var(--lima); font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 900; text-transform: uppercase; cursor: pointer; padding: 6px 0; }
+  .solicitudes-titulo { color: var(--hueso); font-family: Impact, sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .solicitudes-body { max-width: 640px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
   #precargaSvg { width: 168px; height: 168px; }
 </style>
 </head>
@@ -196,6 +203,7 @@
       <div class="tile-head"><span class="tile-icono">📋</span><div class="tile-titulo">Solicitudes</div></div>
       <div class="tile-dato" id="datoSolicitudes">—</div>
       <div class="tile-label" id="labelSolicitudes">pendientes</div>
+      <div id="previewSolicitudes" style="margin-top:6px;"></div>
     </div>
 
     <a class="tile" data-modulo="cuota" href="https://clubdecampolaeugenia.github.io/cuota-la-eugenia/" target="_blank">
@@ -291,16 +299,18 @@
     </div>
   </div>
 
-  <div id="panelSolicitudes" class="modal-overlay" onclick="if (event.target === this) togglePanelSolicitudes();">
-    <div class="modal-box">
-      <button class="modal-close" onclick="togglePanelSolicitudes()">×</button>
-      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Solicitudes</div>
-      <div id="listaSolicitudes" style="margin-bottom:14px;"></div>
-      <div id="msgSolicitudes" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
-    </div>
-  </div>
-
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
+</div>
+
+<div id="solicitudesScreen">
+  <div class="solicitudes-header">
+    <button class="solicitudes-volver" onclick="togglePanelSolicitudes()">← Volver</button>
+    <div class="solicitudes-titulo">Solicitudes</div>
+  </div>
+  <div class="solicitudes-body">
+    <div id="listaSolicitudes"></div>
+    <div id="msgSolicitudes" style="margin-top:8px; font-size:13px; color:var(--hueso);"></div>
+  </div>
 </div>
 
 <script>
@@ -555,28 +565,47 @@
     jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
       marcarCargaLista();
       var dato = document.getElementById('datoSolicitudes');
+      var preview = document.getElementById('previewSolicitudes');
       if (!dato) return;
-      if (!res || !res.ok) { dato.textContent = '—'; return; }
-      var n = res.solicitudes.filter(function(s) { return s.estado === 'PENDIENTE'; }).length;
+      if (!res || !res.ok) { dato.textContent = '—'; if (preview) preview.innerHTML = ''; return; }
+      var pendientes = res.solicitudes.filter(function(s) { return s.estado === 'PENDIENTE'; });
+      var n = pendientes.length;
       dato.textContent = n;
       marcarBadge('badgeSolicitudes', n > 0 ? 'naranja' : null, n > 0 ? (n + ' solicitud' + (n > 1 ? 'es' : '') + ' esperando revisión') : '');
+
+      if (preview) {
+        if (n === 0) {
+          preview.innerHTML = '';
+        } else {
+          var maxPreview = 2;
+          var items = pendientes.slice(0, maxPreview).map(function(s) {
+            var quien = s.solicitanteNombre || '(sin nombre)';
+            var verif = s.vinculoVerificado === 'SI' ? '' : ' ⚠';
+            return '<div style="font-size:11px; color:var(--petroleo); line-height:1.5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
+              '<b>' + (s.origen || '(sin especificar)') + '</b> · ' + (s.lote || '') + ' · ' + quien + verif +
+              '</div>';
+          }).join('');
+          var resto = n - maxPreview;
+          if (resto > 0) items += '<div style="font-size:11px; color:var(--gris); margin-top:2px;">+' + resto + ' más</div>';
+          preview.innerHTML = items;
+        }
+      }
     });
   }
-
   function togglePanelSolicitudes() {
-    var panel = document.getElementById('panelSolicitudes');
+    var panel = document.getElementById('solicitudesScreen');
     var visible = panel.classList.contains('show');
     panel.classList.toggle('show', !visible);
-    if (!visible) cargarListaSolicitudes();
+    if (!visible) { cargarListaSolicitudes(); window.scrollTo(0,0); }
   }
 
   function cargarListaSolicitudes() {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var lista = document.getElementById('listaSolicitudes');
-    lista.innerHTML = 'Cargando...';
+    lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">Cargando...</div>';
     jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
-      if (!res || !res.ok) { lista.innerHTML = 'Error: ' + (res ? res.error : 'sin respuesta'); return; }
-      if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--petroleo); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
+      if (!res || !res.ok) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">Error: ' + (res ? res.error : 'sin respuesta') + '</div>'; return; }
+      if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
 
       function renderItem(s) {
         var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
@@ -595,7 +624,7 @@
         } else {
           botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
         }
-        var fondo = esAccionable ? 'background:var(--verdecl); border:1px solid var(--verdecl);' : 'border:1px solid var(--verdecl);';
+        var fondo = esAccionable ? 'background:var(--verdecl); border:1px solid var(--verdecl);' : 'background:var(--hueso); border:1px solid var(--verdecl);';
         var colorTexto = esAccionable ? 'var(--hueso)' : 'var(--petroleo)';
         var colorSub = esAccionable ? 'var(--hueso)' : 'var(--gris)';
         var colorMsg = esAccionable ? 'var(--hueso)' : 'var(--tinta)';
@@ -628,13 +657,13 @@
 
       var html = '';
       if (pendientes.length > 0) {
-        html += '<div style="font-size:11px; font-weight:900; text-transform:uppercase; color:var(--petroleo); margin-bottom:8px;">Necesitan atención</div>';
+        html += '<div style="font-size:11px; font-weight:900; text-transform:uppercase; color:var(--lima); margin-bottom:8px;">Necesitan atención</div>';
         html += pendientes.map(renderItem).join('');
       } else {
-        html += '<div style="color:var(--petroleo); font-size:13px; margin-bottom:8px;">No hay solicitudes pendientes.</div>';
+        html += '<div style="color:var(--hueso); font-size:13px; margin-bottom:8px;">No hay solicitudes pendientes.</div>';
       }
       if (historial.length > 0) {
-        html += '<div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--verdecl); font-size:11px; font-weight:900; text-transform:uppercase; color:var(--gris); margin-bottom:8px;">Historial</div>';
+        html += '<div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.15); font-size:11px; font-weight:900; text-transform:uppercase; color:var(--hueso); opacity:0.6; margin-bottom:8px;">Historial</div>';
         html += historial.map(renderItem).join('');
       }
       lista.innerHTML = html;
