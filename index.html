@@ -647,10 +647,13 @@
         msg.textContent = '';
         cargarListaSolicitudes();
         cargarSolicitudes();
+      } else if (res && res.__jsonpError) {
+        msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
+        cargarListaSolicitudes();
       } else {
         msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
       }
-    });
+    }, 20000);
   }
 
   function actualizarEstadoSolicitud(id, estado, motivo) {
@@ -662,10 +665,13 @@
         msg.textContent = '';
         cargarListaSolicitudes();
         cargarSolicitudes();
+      } else if (res && res.__jsonpError) {
+        msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
+        cargarListaSolicitudes();
       } else {
         msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
       }
-    });
+    }, 20000);
   }
 
   var EXEC_URL_PINES = 'https://script.google.com/macros/s/AKfycbyt4PoL_IWHaXRlMNDy2cPtWmvj7f0-DLpSe5IHir54yPDNg8osPtX_0ezoopC4aGR_7A/exec';
