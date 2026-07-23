@@ -579,7 +579,7 @@
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--petroleo); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
       lista.innerHTML = res.solicitudes.map(function(s) {
         var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
-        var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && s.origen === 'Ocultar lote';
+        var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && (s.origen === 'Ocultar lote' || s.origen === 'Mostrar lote');
         var botones = '';
         if (esAccionable) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
