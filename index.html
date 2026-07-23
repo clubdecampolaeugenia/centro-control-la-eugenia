@@ -644,9 +644,10 @@
     msg.textContent = 'Revirtiendo...';
     jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id }, function(res) {
       if (res && res.ok) {
-        msg.textContent = '';
+        msg.textContent = '✓ Revertido';
         cargarListaSolicitudes();
         cargarSolicitudes();
+        setTimeout(function(){ if (msg.textContent === '✓ Revertido') msg.textContent = ''; }, 3000);
       } else if (res && res.__jsonpError) {
         msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
         cargarListaSolicitudes();
@@ -662,9 +663,11 @@
     msg.textContent = 'Actualizando...';
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
       if (res && res.ok) {
-        msg.textContent = '';
+        var okMsg = estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado';
+        msg.textContent = okMsg;
         cargarListaSolicitudes();
         cargarSolicitudes();
+        setTimeout(function(){ if (msg.textContent === okMsg) msg.textContent = ''; }, 3000);
       } else if (res && res.__jsonpError) {
         msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
         cargarListaSolicitudes();
