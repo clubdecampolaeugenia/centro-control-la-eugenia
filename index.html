@@ -384,9 +384,13 @@
       var prep = d.preparacion;
       if (prep && prep.periodo) {
         var mesProx = capitalizarMes(prep.periodo);
-        var valorProx = (prep.determinada && prep.adicional) ? prep.adicional : 'pendiente';
-        elLabel.textContent = 'Prox. cuota ' + mesProx + ': ' + valorProx;
-        marcarBadge('badgeCuota', prep.determinada ? 'lima' : null, prep.determinada ? ('Ya está determinada la cuota de ' + mesProx + ': ' + valorProx) : '');
+        if (prep.determinada && prep.lote && prep.adicional) {
+          elLabel.innerHTML = '<i>' + mesProx + ': ' + prep.lote + '</i><br><i>' + prep.adicional + '</i>';
+          marcarBadge('badgeCuota', 'lima', 'Ya está determinada la cuota de ' + mesProx + ': ' + prep.lote + ' / ' + prep.adicional);
+        } else {
+          elLabel.textContent = 'Prox. cuota ' + mesProx + ': pendiente';
+          marcarBadge('badgeCuota', null);
+        }
       } else {
         elLabel.textContent = 'vigente';
         marcarBadge('badgeCuota', null);
