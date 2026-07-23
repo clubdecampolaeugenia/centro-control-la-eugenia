@@ -294,7 +294,7 @@
   <div id="panelSolicitudes" class="modal-overlay" onclick="if (event.target === this) togglePanelSolicitudes();">
     <div class="modal-box">
       <button class="modal-close" onclick="togglePanelSolicitudes()">×</button>
-      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Solicitudes pendientes</div>
+      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Solicitudes</div>
       <div id="listaSolicitudes" style="margin-bottom:14px;"></div>
       <div id="msgSolicitudes" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
     </div>
@@ -557,7 +557,7 @@
       var dato = document.getElementById('datoSolicitudes');
       if (!dato) return;
       if (!res || !res.ok) { dato.textContent = '—'; return; }
-      var n = res.solicitudes.length;
+      var n = res.solicitudes.filter(function(s) { return s.estado === 'PENDIENTE'; }).length;
       dato.textContent = n;
       marcarBadge('badgeSolicitudes', n > 0 ? 'naranja' : null, n > 0 ? (n + ' solicitud' + (n > 1 ? 'es' : '') + ' esperando revisión') : '');
     });
