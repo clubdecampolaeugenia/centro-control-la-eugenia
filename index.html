@@ -577,7 +577,8 @@
     jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
       if (!res || !res.ok) { lista.innerHTML = 'Error: ' + (res ? res.error : 'sin respuesta'); return; }
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--petroleo); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
-      lista.innerHTML = res.solicitudes.map(function(s) {
+
+      function renderItem(s) {
         var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
         var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && (s.origen === 'Ocultar nombre' || s.origen === 'Mostrar nombre');
         var botones = '';
@@ -610,7 +611,23 @@
           (s.motivoRechazo ? '<div style="font-size:12px; margin-top:4px; color:#c0392b;"><b>Motivo:</b> ' + s.motivoRechazo + '</div>' : '') +
           botones +
           '</div>';
-      }).join('');
+      }
+
+      var pendientes = res.solicitudes.filter(function(s) { return s.estado === 'PENDIENTE'; });
+      var historial = res.solicitudes.filter(function(s) { return s.estado !== 'PENDIENTE'; });
+
+      var html = '';
+      if (pendientes.length > 0) {
+        html += '<div style="font-size:11px; font-weight:900; text-transform:uppercase; color:var(--petroleo); margin-bottom:8px;">Necesitan atención</div>';
+        html += pendientes.map(renderItem).join('');
+      } else {
+        html += '<div style="color:var(--petroleo); font-size:13px; margin-bottom:8px;">No hay solicitudes pendientes.</div>';
+      }
+      if (historial.length > 0) {
+        html += '<div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--verdecl); font-size:11px; font-weight:900; text-transform:uppercase; color:var(--gris); margin-bottom:8px;">Historial</div>';
+        html += historial.map(renderItem).join('');
+      }
+      lista.innerHTML = html;
     });
   }
 
