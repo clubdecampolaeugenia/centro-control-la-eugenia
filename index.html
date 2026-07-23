@@ -579,7 +579,7 @@
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--petroleo); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
       lista.innerHTML = res.solicitudes.map(function(s) {
         var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
-        var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && (s.origen === 'Ocultar lote' || s.origen === 'Mostrar lote');
+        var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && (s.origen === 'Ocultar nombre' || s.origen === 'Mostrar nombre');
         var botones = '';
         if (esAccionable) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
@@ -621,7 +621,7 @@
   }
 
   function revertirSolicitud(id) {
-    if (!confirm('¿Revertir esta aprobación? Vuelve a mostrar el lote en el mapa.')) return;
+    if (!confirm('¿Revertir esta aprobación? Cambia si el nombre del titular se muestra u oculta en ese lote.')) return;
     var pinAdmin = localStorage.getItem('cgv_pin');
     var msg = document.getElementById('msgSolicitudes');
     msg.textContent = 'Revirtiendo...';
