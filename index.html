@@ -540,10 +540,6 @@
 
   // Si ya hay sesion activa de cualquier otra app del ecosistema, saltamos el PIN
   if (localStorage.getItem('cgv_admin_ok') === '1') {
-    if (localStorage.getItem('cgv_pin') === '1923') {
-      localStorage.setItem('cgv_es_maestro', '1');
-      localStorage.setItem('cgv_modulos', 'ALL');
-    }
     if (!localStorage.getItem('cgv_modulos')) {
       // Sesion vieja sin info de modulos: por seguridad, pedimos loguearse de nuevo
       localStorage.removeItem('cgv_admin_ok');
@@ -571,7 +567,7 @@
       yaResolvio = true;
       clearTimeout(timeoutId);
       if (res && res.ok && res.valido) {
-        var esMaestro = !!res.esMaestro || (pin === '1923');
+        var esMaestro = !!res.esMaestro;
         aceptarPin(pin, res.nombre, esMaestro, res.modulos);
       } else if (res && res.__jsonpError && (pin === '1923' || pin === '1112')) {
         // Backend central no respondió: fallback a los PINes conocidos, sin cortar el trabajo
