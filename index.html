@@ -610,6 +610,7 @@
       function renderItem(s) {
         var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
         var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && (s.origen === 'Ocultar nombre' || s.origen === 'Mostrar nombre');
+        var deshabilitado = 'opacity:.4; cursor:not-allowed; pointer-events:none;';
         var botones = '';
         if (esAccionable) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
@@ -620,6 +621,21 @@
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
             '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">APROBADA</span>' +
             '<button onclick="revertirSolicitud(\'' + s.id + '\')" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Revertir</button>' +
+            '</div>';
+        } else if (s.estado === 'PENDIENTE') {
+          // El sistema no reconoce este "origen" como accionable automaticamente.
+          // Se muestran los botones igual, pero deshabilitados: la accion existe,
+          // simplemente no se puede aplicar sola a este pedido puntual.
+          botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
+            '<button disabled title="Sin acción automática para el tipo de pedido &quot;' + (s.origen || '') + '&quot;" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Aprobar</button>' +
+            '<button disabled title="Sin acción automática para el tipo de pedido &quot;' + (s.origen || '') + '&quot;" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Rechazar</button>' +
+            '</div>' +
+            '<div style="font-size:11px; color:var(--gris); margin-top:4px;">Sin acción automática para este tipo de pedido — requiere revisión manual.</div>';
+        } else if (s.estado === 'APROBADA') {
+          // Aprobada, pero este origen no tiene reversion automatica todavia.
+          botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
+            '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">APROBADA</span>' +
+            '<button disabled title="Este tipo de pedido todavía no tiene reversión automática" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Revertir</button>' +
             '</div>';
         } else {
           botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
