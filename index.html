@@ -641,9 +641,9 @@
           botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
         }
         var fondo = esAccionable ? 'background:var(--verdecl); border:1px solid var(--verdecl);' : 'background:var(--hueso); border:1px solid var(--verdecl);';
-        var colorTexto = esAccionable ? 'var(--hueso)' : 'var(--petroleo)';
-        var colorSub = esAccionable ? 'var(--hueso)' : 'var(--gris)';
-        var colorMsg = esAccionable ? 'var(--hueso)' : 'var(--tinta)';
+        var colorTexto = 'var(--petroleo)';
+        var colorSub = esAccionable ? 'var(--tinta)' : 'var(--gris)';
+        var colorMsg = 'var(--tinta)';
         var contactoHtml = s.solicitanteContacto
           ? '<div style="font-size:12px; color:' + colorSub + '; margin-top:2px;">' +
             (s.solicitanteContacto.indexOf('@') !== -1
