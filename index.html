@@ -651,7 +651,16 @@
             '<button disabled title="Este tipo de pedido todavía no tiene reversión automática" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Revertir</button>' +
             '</div>';
         } else {
-          botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
+          if (s.estado === 'RECHAZADA' && s.notificado !== 'SI') {
+            botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center;">' +
+              '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">RECHAZADA</span>' +
+              '<button onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>' +
+              '</div>';
+          } else if (s.estado === 'RECHAZADA' && s.notificado === 'SI') {
+            botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">RECHAZADA · ✓ notificado</div>';
+          } else {
+            botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
+          }
         }
         var fondo = esAccionable ? 'background:var(--verdecl); border:1px solid var(--verdecl);' : 'background:var(--hueso); border:1px solid var(--verdecl);';
         var colorTexto = 'var(--petroleo)';
@@ -728,6 +737,24 @@
         cargarListaSolicitudes();
         cargarSolicitudes();
         setTimeout(function(){ if (msg.textContent === '✓ Revertido') msg.textContent = ''; }, 3000);
+      } else if (res && res.__jsonpError) {
+        msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
+        cargarListaSolicitudes();
+      } else {
+        msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
+      }
+    }, 30000);
+  }
+
+  function notificarRechazoSolicitud(id) {
+    var pinAdmin = localStorage.getItem('cgv_pin');
+    var msg = document.getElementById('msgSolicitudes');
+    msg.textContent = 'Notificando...';
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'notificarRechazo', pinAdmin: pinAdmin, id: id }, function(res) {
+      if (res && res.ok) {
+        msg.textContent = '✓ Notificado';
+        cargarListaSolicitudes();
+        setTimeout(function(){ if (msg.textContent === '✓ Notificado') msg.textContent = ''; }, 3000);
       } else if (res && res.__jsonpError) {
         msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
         cargarListaSolicitudes();
