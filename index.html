@@ -299,6 +299,19 @@
     </div>
   </div>
 
+  <div id="panelMotivoRechazo" class="modal-overlay" onclick="if (event.target === this) cerrarModalRechazo();">
+    <div class="modal-box">
+      <button class="modal-close" onclick="cerrarModalRechazo()">×</button>
+      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Motivo del rechazo</div>
+      <div style="font-size:13px; color:var(--gris); margin-bottom:10px;">Se le envía por mail al solicitante.</div>
+      <textarea id="motivoRechazoInput" rows="3" style="width:100%; box-sizing:border-box; padding:10px; border-radius:10px; border:1px solid var(--verdecl); font-family:inherit; font-size:14px; resize:vertical;" placeholder="Ej: falta verificar el vínculo con el lote"></textarea>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button onclick="cerrarModalRechazo()" style="flex:1; background:transparent; color:var(--gris); border:1px solid var(--gris); padding:10px; border-radius:10px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Cancelar</button>
+        <button onclick="confirmarRechazo()" style="flex:1; background:#c0392b; color:var(--hueso); border:none; padding:10px; border-radius:10px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
 </div>
 
@@ -590,7 +603,7 @@
           preview.innerHTML = items;
         }
       }
-    });
+    }, 30000);
   }
   function togglePanelSolicitudes() {
     var panel = document.getElementById('solicitudesScreen');
@@ -604,7 +617,7 @@
     var lista = document.getElementById('listaSolicitudes');
     lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">Cargando...</div>';
     jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
-      if (!res || !res.ok) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">Error: ' + (res ? res.error : 'sin respuesta') + '</div>'; return; }
+      if (!res || !res.ok) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">' + (res && res.__jsonpError ? 'Tardó más de lo esperado. Reintentá en un momento.' : 'Error: ' + (res ? res.error : 'sin respuesta')) + '</div>'; return; }
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
 
       function renderItem(s) {
@@ -683,12 +696,24 @@
         html += historial.map(renderItem).join('');
       }
       lista.innerHTML = html;
-    });
+    }, 30000);
   }
 
+  var idRechazoActual = null;
   function rechazarSolicitud(id) {
-    var motivo = prompt('Motivo del rechazo (se le envía al solicitante):', '');
-    if (motivo === null) return; // canceló
+    idRechazoActual = id;
+    document.getElementById('motivoRechazoInput').value = '';
+    document.getElementById('panelMotivoRechazo').classList.add('show');
+    document.getElementById('motivoRechazoInput').focus();
+  }
+  function cerrarModalRechazo() {
+    document.getElementById('panelMotivoRechazo').classList.remove('show');
+    idRechazoActual = null;
+  }
+  function confirmarRechazo() {
+    var motivo = document.getElementById('motivoRechazoInput').value.trim();
+    var id = idRechazoActual;
+    cerrarModalRechazo();
     actualizarEstadoSolicitud(id, 'RECHAZADA', motivo);
   }
 
