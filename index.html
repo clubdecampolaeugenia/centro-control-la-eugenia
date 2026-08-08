@@ -299,19 +299,6 @@
     </div>
   </div>
 
-  <div id="panelMotivoRechazo" class="modal-overlay" onclick="if (event.target === this) cerrarModalRechazo();">
-    <div class="modal-box">
-      <button class="modal-close" onclick="cerrarModalRechazo()">×</button>
-      <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Motivo del rechazo</div>
-      <div style="font-size:13px; color:var(--gris); margin-bottom:10px;">Se le envía por mail al solicitante.</div>
-      <textarea id="motivoRechazoInput" rows="3" style="width:100%; box-sizing:border-box; padding:10px; border-radius:10px; border:1px solid var(--verdecl); font-family:inherit; font-size:14px; resize:vertical;" placeholder="Ej: falta verificar el vínculo con el lote"></textarea>
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <button onclick="cerrarModalRechazo()" style="flex:1; background:transparent; color:var(--gris); border:1px solid var(--gris); padding:10px; border-radius:10px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Cancelar</button>
-        <button onclick="confirmarRechazo()" style="flex:1; background:#c0392b; color:var(--hueso); border:none; padding:10px; border-radius:10px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>
-      </div>
-    </div>
-  </div>
-
   <div id="panelDetalleError" class="modal-overlay" onclick="if (event.target === this) cerrarDetalleError();">
     <div class="modal-box">
       <button class="modal-close" onclick="cerrarDetalleError()">×</button>
@@ -648,8 +635,14 @@
         if (esAccionable) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
             '<button id="btn-aprobar-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Aprobar</button>' +
-            '<button id="btn-rechazar-' + s.id + '" onclick="rechazarSolicitud(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
-            '</div>';
+            '<button id="btn-rechazar-' + s.id + '" onclick="mostrarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
+            '</div>' +
+            '<div id="motivo-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
+            '<textarea id="motivo-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;" placeholder="Motivo del rechazo (se le envía por mail)"></textarea>' +
+            '<div style="display:flex; gap:8px; margin-top:6px;">' +
+            '<button onclick="ocultarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Cancelar</button>' +
+            '<button id="btn-confirmar-rechazo-' + s.id + '" onclick="confirmarRechazoInline(\'' + s.id + '\')" style="background:#c0392b; color:var(--hueso); border:none; padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Confirmar rechazo</button>' +
+            '</div></div>';
         } else if (esRevertible) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
             '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">APROBADA</span>' +
@@ -766,22 +759,18 @@
     document.getElementById('panelDetalleError').classList.remove('show');
   }
 
-  var idRechazoActual = null;
-  function rechazarSolicitud(id) {
-    idRechazoActual = id;
-    document.getElementById('motivoRechazoInput').value = '';
-    document.getElementById('panelMotivoRechazo').classList.add('show');
-    document.getElementById('motivoRechazoInput').focus();
+  function mostrarMotivoInline(id) {
+    var el = document.getElementById('motivo-inline-' + id);
+    if (el) { el.style.display = 'block'; document.getElementById('motivo-input-' + id).focus(); }
   }
-  function cerrarModalRechazo() {
-    document.getElementById('panelMotivoRechazo').classList.remove('show');
-    idRechazoActual = null;
+  function ocultarMotivoInline(id) {
+    var el = document.getElementById('motivo-inline-' + id);
+    if (el) el.style.display = 'none';
   }
-  function confirmarRechazo() {
-    var motivo = document.getElementById('motivoRechazoInput').value.trim();
-    var id = idRechazoActual;
-    cerrarModalRechazo();
-    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo);
+  function confirmarRechazoInline(id) {
+    var input = document.getElementById('motivo-input-' + id);
+    var motivo = input ? input.value.trim() : '';
+    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-rechazo-' + id);
   }
 
   function revertirSolicitud(id) {
@@ -820,9 +809,9 @@
     }, 30000);
   }
 
-  function actualizarEstadoSolicitud(id, estado, motivo) {
+  function actualizarEstadoSolicitud(id, estado, motivo, btnIdOverride) {
     var pinAdmin = localStorage.getItem('cgv_pin');
-    var btnId = estado === 'APROBADA' ? ('btn-aprobar-' + id) : ('btn-rechazar-' + id);
+    var btnId = btnIdOverride || (estado === 'APROBADA' ? ('btn-aprobar-' + id) : ('btn-rechazar-' + id));
     setBotonAccion(btnId, 'enviando', estado === 'APROBADA' ? 'Aprobando…' : 'Rechazando…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
       if (res && res.ok) {
