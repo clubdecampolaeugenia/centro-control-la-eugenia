@@ -343,6 +343,17 @@
     if (precargaPendientes <= 0) ocultarPrecarga();
   }
 
+  // Version simple, sin acoplar al contador de carga inicial del dashboard:
+  // se puede usar para cualquier accion puntual (rechazar, notificar, listar)
+  // sin interferir con la secuencia de login. Al ser un overlay de pantalla
+  // completa, aparece arriba de lo que ya está en pantalla sin borrar nada.
+  function mostrarPrecargaAccion() {
+    document.getElementById('precargaScreen').classList.add('show');
+  }
+  function ocultarPrecargaAccion() {
+    document.getElementById('precargaScreen').classList.remove('show');
+  }
+
   function mostrarDashboard() {
     document.getElementById('loginScreen').style.display = 'none';
     precargaOculta = false;
@@ -615,8 +626,9 @@
   function cargarListaSolicitudes() {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var lista = document.getElementById('listaSolicitudes');
-    lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">Cargando...</div>';
+    mostrarPrecargaAccion();
     jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
+      ocultarPrecargaAccion();
       if (!res || !res.ok) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">' + (res && res.__jsonpError ? 'Tardó más de lo esperado. Reintentá en un momento.' : 'Error: ' + (res ? res.error : 'sin respuesta')) + '</div>'; return; }
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
 
@@ -730,8 +742,9 @@
     if (!confirm('¿Revertir esta aprobación? Cambia si el nombre del titular se muestra u oculta en ese lote.')) return;
     var pinAdmin = localStorage.getItem('cgv_pin');
     var msg = document.getElementById('msgSolicitudes');
-    msg.textContent = 'Revirtiendo...';
+    mostrarPrecargaAccion();
     jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id }, function(res) {
+      ocultarPrecargaAccion();
       if (res && res.ok) {
         msg.textContent = '✓ Revertido';
         cargarListaSolicitudes();
@@ -749,8 +762,9 @@
   function notificarRechazoSolicitud(id) {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var msg = document.getElementById('msgSolicitudes');
-    msg.textContent = 'Notificando...';
+    mostrarPrecargaAccion();
     jsonp(EXEC_URL_SOLICITUDES, { action: 'notificarRechazo', pinAdmin: pinAdmin, id: id }, function(res) {
+      ocultarPrecargaAccion();
       if (res && res.ok) {
         msg.textContent = '✓ Notificado';
         cargarListaSolicitudes();
@@ -767,8 +781,9 @@
   function actualizarEstadoSolicitud(id, estado, motivo) {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var msg = document.getElementById('msgSolicitudes');
-    msg.textContent = 'Actualizando...';
+    mostrarPrecargaAccion();
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
+      ocultarPrecargaAccion();
       if (res && res.ok) {
         var okMsg = estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado';
         msg.textContent = okMsg;
