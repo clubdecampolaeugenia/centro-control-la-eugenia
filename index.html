@@ -678,7 +678,7 @@
               : s.solicitanteContacto) +
             (s.vinculoVerificado === 'SI' ? ' · vínculo verificado' : ' · vínculo sin verificar') + '</div>'
           : '';
-        return '<div style="border-radius:10px; padding:10px 12px; margin-bottom:8px; ' + fondo + '">' +
+        return '<div style="border-radius:10px; padding:10px 12px; margin-bottom:8px; position:relative; ' + fondo + '">' +
           '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">' +
           '<strong style="font-size:13px; color:' + colorTexto + ';">' + (s.origen || '(sin especificar)') + '</strong>' +
           '<span style="font-size:11px; color:' + colorSub + ';">' + (s.fecha || '') + '</span>' +
@@ -755,9 +755,9 @@
     }
     el = document.createElement('div');
     el.id = detalleId;
-    el.style.cssText = 'width:100%; margin-top:8px; background:#c0392b; color:var(--hueso); padding:10px 12px; border-radius:8px; font-size:12px; white-space:pre-wrap; word-break:break-word;';
+    el.style.cssText = 'position:absolute; left:0; right:0; top:' + (btn.offsetTop + btn.offsetHeight + 6) + 'px; z-index:20; background:#c0392b; color:var(--hueso); padding:10px 12px; border-radius:8px; font-size:12px; white-space:pre-wrap; word-break:break-word; box-shadow:0 6px 16px rgba(0,0,0,.3);';
     el.textContent = detalle;
-    btn.parentNode.insertBefore(el, btn.nextSibling);
+    btn.closest('div[style*="position:relative"]').appendChild(el);
     btn.textContent = 'Error ▴';
   }
 
