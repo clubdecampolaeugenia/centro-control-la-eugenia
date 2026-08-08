@@ -662,8 +662,11 @@
               (s.notificado === 'SI'
                 ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>'
                 : '<button id="btn-notificar-' + s.id + '" onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>') +
-              '<button id="btn-corregir-aprobar-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\',\'\',\'btn-corregir-aprobar-' + s.id + '\')" style="background:transparent; color:#2e7d32; border:1px solid #2e7d32; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Corregir a aprobado</button>' +
-              '<button onclick="mostrarEditarMotivo(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;">Editar motivo</button>' +
+              '</div>' +
+              '<div style="margin-top:6px; font-size:12px;">' +
+              '<button onclick="mostrarEditarMotivo(\'' + s.id + '\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Editar motivo</button>' +
+              '<span style="color:var(--gris); margin:0 6px;">·</span>' +
+              '<button id="btn-deshacer-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\',\'\',\'btn-deshacer-' + s.id + '\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Deshacer</button>' +
               '</div>' +
               '<div id="motivo-edit-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
               '<textarea id="motivo-edit-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;">' + (s.motivoRechazo || '') + '</textarea>' +
