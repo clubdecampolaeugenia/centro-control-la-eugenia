@@ -713,8 +713,15 @@
         html += '<div style="color:var(--hueso); font-size:13px; margin-bottom:8px;">No hay solicitudes pendientes.</div>';
       }
       if (historial.length > 0) {
+        var LIMITE_HISTORIAL = 5;
+        var historialVisible = historial.slice(0, LIMITE_HISTORIAL);
+        var historialResto = historial.slice(LIMITE_HISTORIAL);
         html += '<div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.15); font-size:11px; font-weight:900; text-transform:uppercase; color:var(--hueso); opacity:0.6; margin-bottom:8px;">Historial</div>';
-        html += historial.map(renderItem).join('');
+        html += historialVisible.map(renderItem).join('');
+        if (historialResto.length > 0) {
+          html += '<div id="historialResto" style="display:none;">' + historialResto.map(renderItem).join('') + '</div>';
+          html += '<button onclick="document.getElementById(\'historialResto\').style.display=\'block\'; this.remove();" style="background:none; border:1px solid var(--hueso); color:var(--hueso); opacity:0.7; padding:6px 14px; border-radius:8px; font-size:12px; margin-top:8px; cursor:pointer; width:100%;">Ver ' + historialResto.length + ' más antiguas</button>';
+        }
       }
       lista.innerHTML = html;
     }, 30000);
