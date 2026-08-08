@@ -630,14 +630,14 @@
             '<button id="btn-rechazar-' + s.id + '" onclick="mostrarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
             '</div>' +
             '<div id="motivo-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
-            '<textarea id="motivo-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;" placeholder="Motivo del rechazo (se le envía por mail)"></textarea>' +
+            '<textarea id="motivo-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;" placeholder="Motivo del rechazo (opcional, se puede editar después)"></textarea>' +
             '<div style="display:flex; gap:8px; margin-top:6px;">' +
             '<button onclick="ocultarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Cancelar</button>' +
             '<button id="btn-confirmar-rechazo-' + s.id + '" onclick="confirmarRechazoInline(\'' + s.id + '\')" style="background:#c0392b; color:var(--hueso); border:none; padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Confirmar rechazo</button>' +
             '</div></div>';
         } else if (esRevertible) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
-            '<span style="font-size:11px; font-weight:900; color:#fff; background:#2e7d32; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✓ Aprobada</span>' +
+            '<span style="font-size:13px; color:#fff; background:#2e7d32; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase;">✓ Aprobada</span>' +
             '<button id="btn-revertir-' + s.id + '" onclick="revertirSolicitud(\'' + s.id + '\')" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Revertir</button>' +
             '</div>';
         } else if (s.estado === 'PENDIENTE') {
@@ -652,20 +652,25 @@
         } else if (s.estado === 'APROBADA') {
           // Aprobada, pero este origen no tiene reversion automatica todavia.
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
-            '<span style="font-size:11px; font-weight:900; color:#fff; background:#2e7d32; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✓ Aprobada</span>' +
+            '<span style="font-size:13px; color:#fff; background:#2e7d32; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase;">✓ Aprobada</span>' +
             '<button disabled title="Este tipo de pedido todavía no tiene reversión automática" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Revertir</button>' +
             '</div>';
         } else {
-          if (s.estado === 'RECHAZADA' && s.notificado !== 'SI') {
-            botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center;">' +
-              '<span style="font-size:11px; font-weight:900; color:#fff; background:#c0392b; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✗ Rechazada</span>' +
-              '<button id="btn-notificar-' + s.id + '" onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>' +
-              '</div>';
-          } else if (s.estado === 'RECHAZADA' && s.notificado === 'SI') {
-            botones = '<div style="display:flex; gap:6px; margin-top:6px; align-items:center;">' +
-              '<span style="font-size:11px; font-weight:900; color:#fff; background:#c0392b; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✗ Rechazada</span>' +
-              '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>' +
-              '</div>';
+          if (s.estado === 'RECHAZADA') {
+            botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
+              '<span style="font-size:13px; color:#fff; background:#c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase;">✗ Rechazada</span>' +
+              (s.notificado === 'SI'
+                ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>'
+                : '<button id="btn-notificar-' + s.id + '" onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>') +
+              '<button id="btn-corregir-aprobar-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\',\'\',\'btn-corregir-aprobar-' + s.id + '\')" style="background:transparent; color:#2e7d32; border:1px solid #2e7d32; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Corregir a aprobado</button>' +
+              '<button onclick="mostrarEditarMotivo(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;">Editar motivo</button>' +
+              '</div>' +
+              '<div id="motivo-edit-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
+              '<textarea id="motivo-edit-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;">' + (s.motivoRechazo || '') + '</textarea>' +
+              '<div style="display:flex; gap:8px; margin-top:6px;">' +
+              '<button onclick="ocultarEditarMotivo(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Cancelar</button>' +
+              '<button id="btn-confirmar-editar-motivo-' + s.id + '" onclick="confirmarEditarMotivo(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Guardar motivo</button>' +
+              '</div></div>';
           } else {
             botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
           }
@@ -790,6 +795,20 @@
     var input = document.getElementById('motivo-input-' + id);
     var motivo = input ? input.value.trim() : '';
     actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-rechazo-' + id);
+  }
+
+  function mostrarEditarMotivo(id) {
+    var el = document.getElementById('motivo-edit-inline-' + id);
+    if (el) { el.style.display = 'block'; document.getElementById('motivo-edit-input-' + id).focus(); }
+  }
+  function ocultarEditarMotivo(id) {
+    var el = document.getElementById('motivo-edit-inline-' + id);
+    if (el) el.style.display = 'none';
+  }
+  function confirmarEditarMotivo(id) {
+    var input = document.getElementById('motivo-edit-input-' + id);
+    var motivo = input ? input.value.trim() : '';
+    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-editar-motivo-' + id);
   }
 
   function revertirSolicitud(id) {
