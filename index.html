@@ -639,13 +639,13 @@
         var botones = '';
         if (esAccionable) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
-            '<button onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Aprobar</button>' +
-            '<button onclick="rechazarSolicitud(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
+            '<button id="btn-aprobar-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Aprobar</button>' +
+            '<button id="btn-rechazar-' + s.id + '" onclick="rechazarSolicitud(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Rechazar</button>' +
             '</div>';
         } else if (esRevertible) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
             '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">APROBADA</span>' +
-            '<button onclick="revertirSolicitud(\'' + s.id + '\')" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Revertir</button>' +
+            '<button id="btn-revertir-' + s.id + '" onclick="revertirSolicitud(\'' + s.id + '\')" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Revertir</button>' +
             '</div>';
         } else if (s.estado === 'PENDIENTE') {
           // El sistema no reconoce este "origen" como accionable automaticamente.
@@ -666,7 +666,7 @@
           if (s.estado === 'RECHAZADA' && s.notificado !== 'SI') {
             botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center;">' +
               '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">RECHAZADA</span>' +
-              '<button onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>' +
+              '<button id="btn-notificar-' + s.id + '" onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>' +
               '</div>';
           } else if (s.estado === 'RECHAZADA' && s.notificado === 'SI') {
             botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">RECHAZADA · ✓ notificado</div>';
@@ -727,6 +727,20 @@
     }, 30000);
   }
 
+  function setBotonAccion(btnId, estado, texto) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return; // el boton ya no esta en pantalla (la lista se refresco)
+    if (!btn.dataset.original) {
+      btn.dataset.original = btn.outerHTML;
+    }
+    btn.disabled = (estado === 'enviando');
+    btn.style.cursor = (estado === 'enviando') ? 'wait' : 'pointer';
+    btn.style.opacity = (estado === 'enviando') ? '.7' : '1';
+    if (estado === 'exito') { btn.style.background = 'var(--petroleo)'; btn.style.color = 'var(--lima)'; btn.style.border = 'none'; }
+    else if (estado === 'error') { btn.style.background = '#c0392b'; btn.style.color = 'var(--hueso)'; btn.style.border = 'none'; }
+    btn.textContent = texto;
+  }
+
   var idRechazoActual = null;
   function rechazarSolicitud(id) {
     idRechazoActual = id;
@@ -748,60 +762,53 @@
   function revertirSolicitud(id) {
     if (!confirm('¿Revertir esta aprobación? Cambia si el nombre del titular se muestra u oculta en ese lote.')) return;
     var pinAdmin = localStorage.getItem('cgv_pin');
-    var msg = document.getElementById('msgSolicitudes');
-    mostrarPrecargaAccion();
+    var btnId = 'btn-revertir-' + id;
+    setBotonAccion(btnId, 'enviando', 'Revirtiendo…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id }, function(res) {
-      ocultarPrecargaAccion();
       if (res && res.ok) {
-        msg.textContent = '✓ Revertido';
+        setBotonAccion(btnId, 'exito', '✓ Revertido');
         cargarListaSolicitudes();
         cargarSolicitudes();
-        setTimeout(function(){ if (msg.textContent === '✓ Revertido') msg.textContent = ''; }, 3000);
       } else if (res && res.__jsonpError) {
-        msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
+        setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
         cargarListaSolicitudes();
       } else {
-        msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
+        setBotonAccion(btnId, 'error', (res && res.error) ? res.error : 'Error, reintentá');
       }
     }, 30000);
   }
 
   function notificarRechazoSolicitud(id) {
     var pinAdmin = localStorage.getItem('cgv_pin');
-    var msg = document.getElementById('msgSolicitudes');
-    mostrarPrecargaAccion();
+    var btnId = 'btn-notificar-' + id;
+    setBotonAccion(btnId, 'enviando', 'Notificando…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'notificarRechazo', pinAdmin: pinAdmin, id: id }, function(res) {
-      ocultarPrecargaAccion();
       if (res && res.ok) {
-        msg.textContent = '✓ Notificado';
+        setBotonAccion(btnId, 'exito', '✓ Notificado');
         cargarListaSolicitudes();
-        setTimeout(function(){ if (msg.textContent === '✓ Notificado') msg.textContent = ''; }, 3000);
       } else if (res && res.__jsonpError) {
-        msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
+        setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
         cargarListaSolicitudes();
       } else {
-        msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
+        setBotonAccion(btnId, 'error', (res && res.error) ? res.error : 'Error, reintentá');
       }
     }, 30000);
   }
 
   function actualizarEstadoSolicitud(id, estado, motivo) {
     var pinAdmin = localStorage.getItem('cgv_pin');
-    var msg = document.getElementById('msgSolicitudes');
-    mostrarPrecargaAccion();
+    var btnId = estado === 'APROBADA' ? ('btn-aprobar-' + id) : ('btn-rechazar-' + id);
+    setBotonAccion(btnId, 'enviando', estado === 'APROBADA' ? 'Aprobando…' : 'Rechazando…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
-      ocultarPrecargaAccion();
       if (res && res.ok) {
-        var okMsg = estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado';
-        msg.textContent = okMsg;
+        setBotonAccion(btnId, 'exito', estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado');
         cargarListaSolicitudes();
         cargarSolicitudes();
-        setTimeout(function(){ if (msg.textContent === okMsg) msg.textContent = ''; }, 3000);
       } else if (res && res.__jsonpError) {
-        msg.textContent = 'Tardó más de lo esperado — revisá la lista, probablemente ya se aplicó.';
+        setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
         cargarListaSolicitudes();
       } else {
-        msg.textContent = 'Error: ' + (res ? res.error : 'sin respuesta');
+        setBotonAccion(btnId, 'error', (res && res.error) ? res.error : 'Error, reintentá');
       }
     }, 30000);
   }
