@@ -299,14 +299,6 @@
     </div>
   </div>
 
-  <div id="panelDetalleError" class="modal-overlay" onclick="if (event.target === this) cerrarDetalleError();">
-    <div class="modal-box">
-      <button class="modal-close" onclick="cerrarDetalleError()">×</button>
-      <div class="section-title" style="color:#c0392b; margin-bottom:10px;">Detalle del error</div>
-      <div id="detalleErrorTexto" style="font-size:13px; color:var(--petroleo); white-space:pre-wrap; word-break:break-word;"></div>
-    </div>
-  </div>
-
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
 </div>
 
@@ -618,12 +610,12 @@
     if (!visible) { cargarListaSolicitudes(); window.scrollTo(0,0); }
   }
 
-  function cargarListaSolicitudes() {
+  function cargarListaSolicitudes(silencioso) {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var lista = document.getElementById('listaSolicitudes');
-    mostrarPrecargaAccion();
+    if (!silencioso) mostrarPrecargaAccion();
     jsonp(EXEC_URL_SOLICITUDES, { action: 'listarSolicitudes', pinAdmin: pinAdmin }, function(res) {
-      ocultarPrecargaAccion();
+      if (!silencioso) ocultarPrecargaAccion();
       if (!res || !res.ok) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">' + (res && res.__jsonpError ? 'Tardó más de lo esperado. Reintentá en un momento.' : 'Error: ' + (res ? res.error : 'sin respuesta')) + '</div>'; return; }
       if (res.solicitudes.length === 0) { lista.innerHTML = '<div style="color:var(--hueso); font-size:13px;">No hay solicitudes pendientes.</div>'; return; }
 
@@ -743,20 +735,30 @@
       btn.textContent = texto;
     } else if (estado === 'error') {
       btn.style.background = '#c0392b'; btn.style.color = 'var(--hueso)'; btn.style.border = 'none';
-      btn.textContent = 'Error ⓘ';
-      btn.setAttribute('onclick', 'mostrarDetalleError(' + JSON.stringify(texto) + ')');
+      btn.textContent = 'Error ▾';
       btn.disabled = false; btn.style.cursor = 'pointer';
+      btn.onclick = function(){ toggleDetalleErrorInline(btnId, texto); };
     } else {
       btn.textContent = texto;
     }
   }
 
-  function mostrarDetalleError(detalle) {
-    document.getElementById('detalleErrorTexto').textContent = detalle;
-    document.getElementById('panelDetalleError').classList.add('show');
-  }
-  function cerrarDetalleError() {
-    document.getElementById('panelDetalleError').classList.remove('show');
+  function toggleDetalleErrorInline(btnId, detalle) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    var detalleId = btnId + '-detalle';
+    var el = document.getElementById(detalleId);
+    if (el) {
+      el.remove();
+      btn.textContent = 'Error ▾';
+      return;
+    }
+    el = document.createElement('div');
+    el.id = detalleId;
+    el.style.cssText = 'width:100%; margin-top:8px; background:#c0392b; color:var(--hueso); padding:10px 12px; border-radius:8px; font-size:12px; white-space:pre-wrap; word-break:break-word;';
+    el.textContent = detalle;
+    btn.parentNode.insertBefore(el, btn.nextSibling);
+    btn.textContent = 'Error ▴';
   }
 
   function mostrarMotivoInline(id) {
@@ -781,11 +783,11 @@
     jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id }, function(res) {
       if (res && res.ok) {
         setBotonAccion(btnId, 'exito', '✓ Revertido');
-        cargarListaSolicitudes();
+        cargarListaSolicitudes(true);
         cargarSolicitudes();
       } else if (res && res.__jsonpError) {
         setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
-        cargarListaSolicitudes();
+        cargarListaSolicitudes(true);
       } else {
         setBotonAccion(btnId, 'error', (res && res.error) ? res.error : 'Error, reintentá');
       }
@@ -799,10 +801,10 @@
     jsonp(EXEC_URL_SOLICITUDES, { action: 'notificarRechazo', pinAdmin: pinAdmin, id: id }, function(res) {
       if (res && res.ok) {
         setBotonAccion(btnId, 'exito', '✓ Notificado');
-        cargarListaSolicitudes();
+        cargarListaSolicitudes(true);
       } else if (res && res.__jsonpError) {
         setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
-        cargarListaSolicitudes();
+        cargarListaSolicitudes(true);
       } else {
         setBotonAccion(btnId, 'error', (res && res.error) ? res.error : 'Error, reintentá');
       }
@@ -816,11 +818,11 @@
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
       if (res && res.ok) {
         setBotonAccion(btnId, 'exito', estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado');
-        cargarListaSolicitudes();
+        cargarListaSolicitudes(true);
         cargarSolicitudes();
       } else if (res && res.__jsonpError) {
         setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
-        cargarListaSolicitudes();
+        cargarListaSolicitudes(true);
       } else {
         setBotonAccion(btnId, 'error', (res && res.error) ? res.error : 'Error, reintentá');
       }
