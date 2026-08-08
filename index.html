@@ -312,6 +312,14 @@
     </div>
   </div>
 
+  <div id="panelDetalleError" class="modal-overlay" onclick="if (event.target === this) cerrarDetalleError();">
+    <div class="modal-box">
+      <button class="modal-close" onclick="cerrarDetalleError()">×</button>
+      <div class="section-title" style="color:#c0392b; margin-bottom:10px;">Detalle del error</div>
+      <div id="detalleErrorTexto" style="font-size:13px; color:var(--petroleo); white-space:pre-wrap; word-break:break-word;"></div>
+    </div>
+  </div>
+
   <div class="dash-footer">Centro de Gestión Vecinal — Club de Campo La Eugenia</div>
 </div>
 
@@ -732,13 +740,30 @@
     if (!btn) return; // el boton ya no esta en pantalla (la lista se refresco)
     if (!btn.dataset.original) {
       btn.dataset.original = btn.outerHTML;
+      btn.dataset.onclickOriginal = btn.getAttribute('onclick') || '';
     }
     btn.disabled = (estado === 'enviando');
     btn.style.cursor = (estado === 'enviando') ? 'wait' : 'pointer';
     btn.style.opacity = (estado === 'enviando') ? '.7' : '1';
-    if (estado === 'exito') { btn.style.background = 'var(--petroleo)'; btn.style.color = 'var(--lima)'; btn.style.border = 'none'; }
-    else if (estado === 'error') { btn.style.background = '#c0392b'; btn.style.color = 'var(--hueso)'; btn.style.border = 'none'; }
-    btn.textContent = texto;
+    if (estado === 'exito') {
+      btn.style.background = 'var(--petroleo)'; btn.style.color = 'var(--lima)'; btn.style.border = 'none';
+      btn.textContent = texto;
+    } else if (estado === 'error') {
+      btn.style.background = '#c0392b'; btn.style.color = 'var(--hueso)'; btn.style.border = 'none';
+      btn.textContent = 'Error ⓘ';
+      btn.setAttribute('onclick', 'mostrarDetalleError(' + JSON.stringify(texto) + ')');
+      btn.disabled = false; btn.style.cursor = 'pointer';
+    } else {
+      btn.textContent = texto;
+    }
+  }
+
+  function mostrarDetalleError(detalle) {
+    document.getElementById('detalleErrorTexto').textContent = detalle;
+    document.getElementById('panelDetalleError').classList.add('show');
+  }
+  function cerrarDetalleError() {
+    document.getElementById('panelDetalleError').classList.remove('show');
   }
 
   var idRechazoActual = null;
