@@ -627,7 +627,8 @@
 
       function renderItem(s) {
         var esAccionable = s.accionable !== false && s.estado === 'PENDIENTE';
-        var esRevertible = s.accionable !== false && s.estado === 'APROBADA' && (s.origen === 'Ocultar nombre' || s.origen === 'Mostrar nombre');
+        var puedeDeshacerCalc = s.puedeDeshacer !== undefined ? s.puedeDeshacer : (s.origen === 'Ocultar nombre' || s.origen === 'Mostrar nombre');
+        var esRevertible = s.estado === 'APROBADA' && puedeDeshacerCalc === true;
         var deshabilitado = 'opacity:.4; cursor:not-allowed; pointer-events:none;';
         var botones = '';
         if (esAccionable) {
@@ -701,12 +702,15 @@
               : s.solicitanteContacto) +
             (s.vinculoVerificado === 'SI' ? ' · vínculo verificado' : ' · vínculo sin verificar') + '</div>'
           : '';
+        var avisoTipo = s.tipoReconocido === false
+          ? '<span title="Este tipo de pedido (&quot;' + (s.origen || '') + '&quot;) no está en la lista de tipos conocidos — revisar si es un error de tipeo." style="cursor:help;"> ⚠</span>'
+          : '';
         return '<div id="solicitud-card-' + s.id + '" style="border-radius:10px; padding:10px 12px; margin-bottom:8px; position:relative; ' + fondo + '">' +
           '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">' +
-          '<strong style="font-size:13px; color:' + colorTexto + ';">' + (s.origen || '(sin especificar)') + '</strong>' +
+          '<strong style="font-size:13px; color:' + colorTexto + ';">' + (s.origen || '(sin especificar)') + avisoTipo + '</strong>' +
           '<span style="font-size:11px; color:' + colorSub + '; text-align:right;">' +
           'Pedido: ' + (s.fecha || '') +
-          (s.fechaResolucion ? '<br>Resuelto: ' + s.fechaResolucion : '') +
+          (s.fechaResolucion ? '<br>Resuelto: ' + s.fechaResolucion + (s.resueltoPor ? ' (' + s.resueltoPor + ')' : '') : '') +
           '</span>' +
           '</div>' +
           '<div style="font-size:13px; margin-top:4px; color:' + colorTexto + ';">' +
@@ -846,7 +850,7 @@
     var pinAdmin = localStorage.getItem('cgv_pin');
     var btnId = 'btn-revertir-' + id;
     setBotonAccion(btnId, 'enviando', 'Deshaciendo…');
-    jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id }, function(res) {
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id, nombreAdmin: localStorage.getItem('cgv_nombre') || '' }, function(res) {
       if (res && res.ok) {
         setBotonAccion(btnId, 'exito', '✓ Deshecho');
         cargarListaSolicitudes(true, id);
@@ -881,7 +885,7 @@
     var pinAdmin = localStorage.getItem('cgv_pin');
     var btnId = btnIdOverride || (estado === 'APROBADA' ? ('btn-aprobar-' + id) : ('btn-rechazar-' + id));
     setBotonAccion(btnId, 'enviando', textoEnviando || (estado === 'APROBADA' ? 'Aprobando…' : 'Rechazando…'));
-    jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
+    jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '', nombreAdmin: localStorage.getItem('cgv_nombre') || '' }, function(res) {
       if (res && res.ok) {
         setBotonAccion(btnId, 'exito', textoExito || (estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado'));
         cargarListaSolicitudes(true, id);
