@@ -637,7 +637,7 @@
             '</div></div>';
         } else if (esRevertible) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
-            '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">APROBADA</span>' +
+            '<span style="font-size:11px; font-weight:900; color:#fff; background:#2e7d32; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✓ Aprobada</span>' +
             '<button id="btn-revertir-' + s.id + '" onclick="revertirSolicitud(\'' + s.id + '\')" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Revertir</button>' +
             '</div>';
         } else if (s.estado === 'PENDIENTE') {
@@ -652,17 +652,20 @@
         } else if (s.estado === 'APROBADA') {
           // Aprobada, pero este origen no tiene reversion automatica todavia.
           botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
-            '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">APROBADA</span>' +
+            '<span style="font-size:11px; font-weight:900; color:#fff; background:#2e7d32; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✓ Aprobada</span>' +
             '<button disabled title="Este tipo de pedido todavía no tiene reversión automática" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Revertir</button>' +
             '</div>';
         } else {
           if (s.estado === 'RECHAZADA' && s.notificado !== 'SI') {
             botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center;">' +
-              '<span style="font-size:11px; color:var(--gris); text-transform:uppercase;">RECHAZADA</span>' +
+              '<span style="font-size:11px; font-weight:900; color:#fff; background:#c0392b; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✗ Rechazada</span>' +
               '<button id="btn-notificar-' + s.id + '" onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Notificar</button>' +
               '</div>';
           } else if (s.estado === 'RECHAZADA' && s.notificado === 'SI') {
-            botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">RECHAZADA · ✓ notificado</div>';
+            botones = '<div style="display:flex; gap:6px; margin-top:6px; align-items:center;">' +
+              '<span style="font-size:11px; font-weight:900; color:#fff; background:#c0392b; padding:3px 8px; border-radius:6px; text-transform:uppercase;">✗ Rechazada</span>' +
+              '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>' +
+              '</div>';
           } else {
             botones = '<div style="font-size:11px; color:var(--gris); margin-top:6px; text-transform:uppercase;">' + (s.estado || '') + '</div>';
           }
