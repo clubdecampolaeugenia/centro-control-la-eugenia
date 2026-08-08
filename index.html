@@ -570,6 +570,12 @@
   }
 
   var EXEC_URL_SOLICITUDES = 'https://script.google.com/macros/s/AKfycbzNVpVv8UHCBhd44q0e6k-HtLPHhOXxnmWw3nOaOerXnmyazWlnO_WDrS_dLWqOVi13/exec';
+  var ordenHistorial = localStorage.getItem('cgv_orden_historial') || 'resolucion';
+  function cambiarOrdenHistorial(nuevo) {
+    ordenHistorial = nuevo;
+    localStorage.setItem('cgv_orden_historial', nuevo);
+    cargarListaSolicitudes();
+  }
 
   function cargarSolicitudes() {
     var pinAdmin = localStorage.getItem('cgv_pin');
@@ -636,9 +642,13 @@
             '<button id="btn-confirmar-rechazo-' + s.id + '" onclick="confirmarRechazoInline(\'' + s.id + '\')" style="background:#c0392b; color:var(--hueso); border:none; padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Confirmar rechazo</button>' +
             '</div></div>';
         } else if (esRevertible) {
-          botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
+          var notificadoAprobado = s.solicitanteContacto && s.solicitanteContacto.indexOf('@') !== -1;
+          botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
             '<span style="font-size:13px; color:#fff; background:#2e7d32; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase;">✓ Aprobada</span>' +
-            '<button id="btn-revertir-' + s.id + '" onclick="revertirSolicitud(\'' + s.id + '\')" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; cursor:pointer;">Revertir</button>' +
+            (notificadoAprobado ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>' : '') +
+            '</div>' +
+            '<div style="margin-top:6px; font-size:12px;">' +
+            '<button id="btn-revertir-' + s.id + '" onclick="revertirSolicitud(\'' + s.id + '\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Deshacer</button>' +
             '</div>';
         } else if (s.estado === 'PENDIENTE') {
           // El sistema no reconoce este "origen" como accionable automaticamente.
@@ -651,10 +661,12 @@
             '<div style="font-size:11px; color:var(--gris); margin-top:4px;">Sin acción automática para este tipo de pedido — requiere revisión manual.</div>';
         } else if (s.estado === 'APROBADA') {
           // Aprobada, pero este origen no tiene reversion automatica todavia.
-          botones = '<div style="display:flex; gap:8px; margin-top:8px; align-items:center;">' +
+          var notificadoAprobado2 = s.solicitanteContacto && s.solicitanteContacto.indexOf('@') !== -1;
+          botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
             '<span style="font-size:13px; color:#fff; background:#2e7d32; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase;">✓ Aprobada</span>' +
-            '<button disabled title="Este tipo de pedido todavía no tiene reversión automática" style="background:transparent; color:#a04000; border:1px solid #a04000; padding:6px 14px; border-radius:8px; font-family:Impact,sans-serif; text-transform:uppercase; ' + deshabilitado + '">Revertir</button>' +
-            '</div>';
+            (notificadoAprobado2 ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>' : '') +
+            '</div>' +
+            '<div style="margin-top:6px; font-size:12px; color:var(--gris);" title="Este tipo de pedido todavía no tiene reversión automática">Deshacer (no disponible para este tipo de pedido)</div>';
         } else {
           if (s.estado === 'RECHAZADA') {
             botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
@@ -666,7 +678,7 @@
               '<div style="margin-top:6px; font-size:12px;">' +
               '<button onclick="mostrarEditarMotivo(\'' + s.id + '\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Editar motivo</button>' +
               '<span style="color:var(--gris); margin:0 6px;">·</span>' +
-              '<button id="btn-deshacer-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\',\'\',\'btn-deshacer-' + s.id + '\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Deshacer</button>' +
+              '<button id="btn-deshacer-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\',\'\',\'btn-deshacer-' + s.id + '\',\'Deshaciendo…\',\'✓ Deshecho\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Deshacer</button>' +
               '</div>' +
               '<div id="motivo-edit-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
               '<textarea id="motivo-edit-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;">' + (s.motivoRechazo || '') + '</textarea>' +
@@ -692,7 +704,10 @@
         return '<div id="solicitud-card-' + s.id + '" style="border-radius:10px; padding:10px 12px; margin-bottom:8px; position:relative; ' + fondo + '">' +
           '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">' +
           '<strong style="font-size:13px; color:' + colorTexto + ';">' + (s.origen || '(sin especificar)') + '</strong>' +
-          '<span style="font-size:11px; color:' + colorSub + ';">' + (s.fecha || '') + '</span>' +
+          '<span style="font-size:11px; color:' + colorSub + '; text-align:right;">' +
+          'Pedido: ' + (s.fecha || '') +
+          (s.fechaResolucion ? '<br>Resuelto: ' + s.fechaResolucion : '') +
+          '</span>' +
           '</div>' +
           '<div style="font-size:13px; margin-top:4px; color:' + colorTexto + ';">' +
           (s.lote ? '<b>Lote:</b> ' + s.lote + ' &nbsp; ' : '') +
@@ -709,6 +724,12 @@
       var pendientes = res.solicitudes.filter(function(s) { return s.estado === 'PENDIENTE'; });
       var historial = res.solicitudes.filter(function(s) { return s.estado !== 'PENDIENTE'; });
 
+      if (ordenHistorial === 'resolucion') {
+        historial.sort(function(a, b) { return (b.tsResolucion || b.tsSolicitud) - (a.tsResolucion || a.tsSolicitud); });
+      } else {
+        historial.sort(function(a, b) { return b.tsSolicitud - a.tsSolicitud; });
+      }
+
       var html = '';
       if (pendientes.length > 0) {
         html += '<div style="font-size:11px; font-weight:900; text-transform:uppercase; color:var(--lima); margin-bottom:8px;">Necesitan atención</div>';
@@ -720,7 +741,13 @@
         var LIMITE_HISTORIAL = 5;
         var historialVisible = historial.slice(0, LIMITE_HISTORIAL);
         var historialResto = historial.slice(LIMITE_HISTORIAL);
-        html += '<div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.15); font-size:11px; font-weight:900; text-transform:uppercase; color:var(--hueso); opacity:0.6; margin-bottom:8px;">Historial</div>';
+        html += '<div style="margin-top:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.15); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">' +
+          '<span style="font-size:11px; font-weight:900; text-transform:uppercase; color:var(--hueso); opacity:0.6;">Historial</span>' +
+          '<span style="font-size:11px; color:var(--hueso); opacity:0.8;">Ordenar por: ' +
+          '<button onclick="cambiarOrdenHistorial(\'resolucion\')" style="background:none; border:none; cursor:pointer; padding:0; margin-left:4px; font-size:11px; text-decoration:' + (ordenHistorial === 'resolucion' ? 'underline' : 'none') + '; color:' + (ordenHistorial === 'resolucion' ? 'var(--lima)' : 'var(--hueso)') + '; font-weight:' + (ordenHistorial === 'resolucion' ? '900' : '400') + ';">resolución</button>' +
+          ' · ' +
+          '<button onclick="cambiarOrdenHistorial(\'solicitud\')" style="background:none; border:none; cursor:pointer; padding:0; font-size:11px; text-decoration:' + (ordenHistorial === 'solicitud' ? 'underline' : 'none') + '; color:' + (ordenHistorial === 'solicitud' ? 'var(--lima)' : 'var(--hueso)') + '; font-weight:' + (ordenHistorial === 'solicitud' ? '900' : '400') + ';">pedido</button>' +
+          '</span></div>';
         html += historialVisible.map(renderItem).join('');
         if (historialResto.length > 0) {
           html += '<div id="historialResto" style="display:none;">' + historialResto.map(renderItem).join('') + '</div>';
@@ -811,17 +838,17 @@
   function confirmarEditarMotivo(id) {
     var input = document.getElementById('motivo-edit-input-' + id);
     var motivo = input ? input.value.trim() : '';
-    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-editar-motivo-' + id);
+    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-editar-motivo-' + id, 'Guardando…', '✓ Guardado');
   }
 
   function revertirSolicitud(id) {
-    if (!confirm('¿Revertir esta aprobación? Cambia si el nombre del titular se muestra u oculta en ese lote.')) return;
+    if (!confirm('¿Deshacer esta aprobación? Cambia si el nombre del titular se muestra u oculta en ese lote.')) return;
     var pinAdmin = localStorage.getItem('cgv_pin');
     var btnId = 'btn-revertir-' + id;
-    setBotonAccion(btnId, 'enviando', 'Revirtiendo…');
+    setBotonAccion(btnId, 'enviando', 'Deshaciendo…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id }, function(res) {
       if (res && res.ok) {
-        setBotonAccion(btnId, 'exito', '✓ Revertido');
+        setBotonAccion(btnId, 'exito', '✓ Deshecho');
         cargarListaSolicitudes(true, id);
         cargarSolicitudes();
       } else if (res && res.__jsonpError) {
@@ -850,13 +877,13 @@
     }, 30000);
   }
 
-  function actualizarEstadoSolicitud(id, estado, motivo, btnIdOverride) {
+  function actualizarEstadoSolicitud(id, estado, motivo, btnIdOverride, textoEnviando, textoExito) {
     var pinAdmin = localStorage.getItem('cgv_pin');
     var btnId = btnIdOverride || (estado === 'APROBADA' ? ('btn-aprobar-' + id) : ('btn-rechazar-' + id));
-    setBotonAccion(btnId, 'enviando', estado === 'APROBADA' ? 'Aprobando…' : 'Rechazando…');
+    setBotonAccion(btnId, 'enviando', textoEnviando || (estado === 'APROBADA' ? 'Aprobando…' : 'Rechazando…'));
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '' }, function(res) {
       if (res && res.ok) {
-        setBotonAccion(btnId, 'exito', estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado');
+        setBotonAccion(btnId, 'exito', textoExito || (estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado'));
         cargarListaSolicitudes(true, id);
         cargarSolicitudes();
       } else if (res && res.__jsonpError) {
