@@ -256,6 +256,15 @@
       <a href="https://clubdecampolaeugenia.github.io/mapa-la-eugenia/" target="_blank" class="tile-mini-btn">Ver mapa público</a>
     </div>
 
+    <a class="tile tile-span2" data-modulo="gestion-institucional" href="https://clubdecampolaeugenia.github.io/gestion-institucional-la-eugenia/" target="_blank">
+      <span class="tile-badge" id="badgeGestionInstitucional"></span>
+      <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/UgiYLGk.png" alt=""><div class="tile-titulo" id="tituloGestionInstitucional">Gestión Institucional</div></div>
+      <div class="tile-dato" id="datoGestionInstitucional">— %</div>
+      <div class="tile-label" id="labelGestionInstitucional">preparación Asamblea</div>
+      <div class="tile-sub" id="subGestionInstitucional1" style="margin-top:6px; padding-top:6px; border-top:1px solid var(--verdecl);">—</div>
+      <div class="tile-sub" id="subGestionInstitucional2">—</div>
+    </a>
+
     <a class="tile" data-modulo="stock" href="https://clubdecampolaeugenia.github.io/stock-del-club/" target="_blank">
       <div class="tile-head"><img class="tile-icono-img" src="https://i.imgur.com/KZF93BF.png" alt=""><div class="tile-titulo">Stock del club</div></div>
       <div class="tile-label">abrir app</div>
@@ -366,6 +375,7 @@
     if (tienePermiso('boletin')) cargas.push(cargarBoletin);
     if (tienePermiso('cuota')) cargas.push(cargarCuota);
     if (tienePermiso('solicitudes')) cargas.push(cargarSolicitudes);
+    if (tienePermiso('gestion-institucional')) cargas.push(cargarGestionInstitucional);
 
     precargaPendientes = 0;
     cargas.forEach(function(fn) { precargaPendientes += (fn === cargarBoletin) ? 2 : 1; });
@@ -397,6 +407,43 @@
     var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     var hoy = new Date();
     return meses[(hoy.getMonth() + 1) % 12];
+  }
+
+  function cargarGestionInstitucional() {
+    var EXEC_URL_GI = 'https://script.google.com/macros/s/AKfycbyBxlDAteVncpf2hyQ-Nna6YZjMiZodntG9gZZ9aPXPei1As_yhqMUCnjnM9mHmJYYZJg/exec';
+    jsonp(EXEC_URL_GI, { action: 'obtenerResumenDashboard' }, function(d) {
+      marcarCargaLista();
+      var elDato = document.getElementById('datoGestionInstitucional');
+      var elTitulo = document.getElementById('tituloGestionInstitucional');
+      var elSub1 = document.getElementById('subGestionInstitucional1');
+      var elSub2 = document.getElementById('subGestionInstitucional2');
+      if (!elDato) return;
+      if (!d || d.__jsonpError || !d.ok) { marcarBadge('badgeGestionInstitucional', 'naranja', 'Gestión Institucional no respondió a tiempo. Puede ser un problema temporal del servicio.'); return; }
+
+      elDato.textContent = d.progresoPct + '%';
+      if (elTitulo) elTitulo.textContent = 'Gestión Institucional · Ej. N.° ' + d.ejercicioNumero;
+
+      var partesSub1 = [];
+      if (d.balanceEstado === 'SIN_PROCESAR') partesSub1.push('Balance sin procesar');
+      else if (d.balanceEstado === 'OBSERVADO') partesSub1.push('Balance con observaciones críticas');
+      else partesSub1.push('Balance: ' + d.balanceEstado);
+      if (elSub1) elSub1.textContent = partesSub1.join(' · ');
+
+      var partesSub2 = [];
+      if (d.autoridadesVacantes > 0) partesSub2.push(d.autoridadesVacantes + ' cargo(s) vacante(s)');
+      if (d.novedadesPendientes > 0) partesSub2.push(d.novedadesPendientes + ' novedad(es) sin revisar');
+      if (partesSub2.length === 0) partesSub2.push(d.novedadesAprobadas + ' novedades aprobadas para Memoria');
+      if (elSub2) elSub2.textContent = partesSub2.join(' · ');
+
+      // Badge de alerta si hay algo crítico pendiente
+      if (d.balanceEstado === 'OBSERVADO') {
+        marcarBadge('badgeGestionInstitucional', 'naranja', 'El Balance del Ejercicio N.° ' + d.ejercicioNumero + ' tiene observaciones críticas sin resolver.');
+      } else if (d.novedadesPendientes > 0) {
+        marcarBadge('badgeGestionInstitucional', 'naranja', d.novedadesPendientes + ' novedad(es) esperando revisión antes de generar la Memoria.');
+      } else {
+        marcarBadge('badgeGestionInstitucional', null);
+      }
+    });
   }
 
   function cargarCuota() {
