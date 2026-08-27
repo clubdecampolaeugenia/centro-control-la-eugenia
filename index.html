@@ -201,7 +201,7 @@
 
     <div class="tile destacada tile-span2" data-modulo="solicitudes" id="tileSolicitudes" style="cursor:pointer;" onclick="togglePanelSolicitudes()">
       <span class="tile-badge" id="badgeSolicitudes"></span>
-      <div class="tile-head"><span class="tile-icono">📋</span><div class="tile-titulo">Solicitudes</div></div>
+      <div class="tile-head"><span class="tile-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#135457" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"></path><line x1="8" y1="11" x2="16" y2="11"></line><line x1="8" y1="15" x2="16" y2="15"></line></svg></span><div class="tile-titulo">Solicitudes</div></div>
       <div class="tile-dato" id="datoSolicitudes">—</div>
       <div class="tile-label" id="labelSolicitudes">pendientes</div>
       <div id="previewSolicitudes" style="margin-top:6px;"></div>
@@ -272,12 +272,12 @@
     </a>
 
     <div class="tile proximamente">
-      <div class="tile-head"><span class="tile-icono">🗺️</span><div class="tile-titulo">Lotes y socios</div></div>
+      <div class="tile-head"><span class="tile-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#135457" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></span><div class="tile-titulo">Lotes y socios</div></div>
       <div class="tile-label" style="margin-top:8px;">Próximamente</div>
     </div>
 
     <div class="tile" id="tilePines" style="display:none;" onclick="togglePanelPines()">
-      <div class="tile-head"><span class="tile-icono">🔑</span><div class="tile-titulo">PINes</div></div>
+      <div class="tile-head"><span class="tile-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#135457" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="M21 2l-9.6 9.6"></path><path d="M15.5 7.5L19 11"></path><path d="M17.5 5.5L21 9"></path></svg></span><div class="tile-titulo">PINes</div></div>
       <div class="tile-dato" id="datoPines">—</div>
       <div class="tile-label">administrar accesos</div>
     </div>
@@ -300,10 +300,10 @@
       <div class="section-title" style="color:var(--petroleo); margin-bottom:10px;">Administrar PINes</div>
       <div id="listaPines" style="margin-bottom:14px;"></div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <input type="text" id="nuevoPinValor" placeholder="PIN (4 dígitos)" maxlength="4" inputmode="numeric" style="width:110px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
-        <input type="text" id="nuevoPinNombre" placeholder="Nombre" style="flex:1; min-width:120px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
-        <input type="text" id="nuevoPinModulos" placeholder="Módulos (ej: reportes,cuota)" style="flex:1; min-width:160px; padding:8px; border-radius:8px; border:1px solid var(--verdecl);">
-        <button onclick="crearPinNuevo()" style="background:var(--petroleo); color:var(--lima); border:none; padding:8px 16px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900; cursor:pointer;">Agregar</button>
+        <input type="text" id="nuevoPinValor" placeholder="PIN (4 dígitos)" maxlength="4" inputmode="numeric" style="width:110px; padding:9px 10px; border-radius:12px; border:none; box-shadow:inset 0 0 0 1.5px rgba(19,84,87,0.15);">
+        <input type="text" id="nuevoPinNombre" placeholder="Nombre" style="flex:1; min-width:120px; padding:9px 10px; border-radius:12px; border:none; box-shadow:inset 0 0 0 1.5px rgba(19,84,87,0.15);">
+        <input type="text" id="nuevoPinModulos" placeholder="Módulos (ej: reportes,cuota)" style="flex:1; min-width:160px; padding:9px 10px; border-radius:12px; border:none; box-shadow:inset 0 0 0 1.5px rgba(19,84,87,0.15);">
+        <button onclick="crearPinNuevo()" style="background:var(--petroleo); color:var(--lima); border:none; padding:9px 18px; border-radius:20px; font-family:Roboto,sans-serif; font-weight:900; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.15);">Agregar</button>
       </div>
       <div id="msgPines" style="margin-top:8px; font-size:13px; color:var(--petroleo);"></div>
     </div>
@@ -682,19 +682,19 @@
         if (esAccionable) {
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
             '<button id="btn-aprobar-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900; cursor:pointer;">Aprobar</button>' +
-            '<button id="btn-rechazar-' + s.id + '" onclick="mostrarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900; cursor:pointer;">Rechazar</button>' +
+            '<button id="btn-rechazar-' + s.id + '" onclick="mostrarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:#c0392b; border:1.5px solid rgba(192,57,43,0.5); padding:7px 16px; border-radius:20px; font-family:Roboto,sans-serif; font-weight:900; cursor:pointer;">Rechazar</button>' +
             '</div>' +
             '<div id="motivo-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
-            '<textarea id="motivo-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;" placeholder="Motivo del rechazo (opcional, se puede editar después)"></textarea>' +
+            '<textarea id="motivo-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:none; box-shadow:inset 0 0 0 1.5px rgba(19,84,87,0.15); font-family:inherit; font-size:13px; resize:vertical;" placeholder="Motivo del rechazo (opcional, se puede editar después)"></textarea>' +
             '<div style="display:flex; gap:8px; margin-top:6px;">' +
-            '<button onclick="ocultarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Cancelar</button>' +
+            '<button onclick="ocultarMotivoInline(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1.5px solid rgba(72,121,124,0.4); padding:6px 14px; border-radius:20px; font-size:12px; cursor:pointer;">Cancelar</button>' +
             '<button id="btn-confirmar-rechazo-' + s.id + '" onclick="confirmarRechazoInline(\'' + s.id + '\')" style="background:#c0392b; color:var(--hueso); border:none; padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Confirmar rechazo</button>' +
             '</div></div>';
         } else if (esRevertible) {
           var notificadoAprobado = s.solicitanteContacto && s.solicitanteContacto.indexOf('@') !== -1;
           botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
             '<span style="font-size:13px; color:#fff; background:#2e7d32; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900;">✓ Aprobada</span>' +
-            (notificadoAprobado ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>' : '') +
+            (notificadoAprobado ? '<span style="font-size:11px; color:var(--gris);">notificado</span>' : '') +
             '</div>' +
             '<div style="margin-top:6px; font-size:12px;">' +
             '<button id="btn-revertir-' + s.id + '" onclick="revertirSolicitud(\'' + s.id + '\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Deshacer</button>' +
@@ -705,7 +705,7 @@
           // simplemente no se puede aplicar sola a este pedido puntual.
           botones = '<div style="display:flex; gap:8px; margin-top:8px;">' +
             '<button disabled title="Sin acción automática para el tipo de pedido &quot;' + (s.origen || '') + '&quot;" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900; ' + deshabilitado + '">Aprobar</button>' +
-            '<button disabled title="Sin acción automática para el tipo de pedido &quot;' + (s.origen || '') + '&quot;" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900; ' + deshabilitado + '">Rechazar</button>' +
+            '<button disabled title="Sin acción automática para el tipo de pedido &quot;' + (s.origen || '') + '&quot;" style="background:transparent; color:#c0392b; border:1.5px solid rgba(192,57,43,0.5); padding:7px 16px; border-radius:20px; font-family:Roboto,sans-serif; font-weight:900; ' + deshabilitado + '">Rechazar</button>' +
             '</div>' +
             '<div style="font-size:11px; color:var(--gris); margin-top:4px;">Sin acción automática para este tipo de pedido — requiere revisión manual.</div>';
         } else if (s.estado === 'APROBADA') {
@@ -713,7 +713,7 @@
           var notificadoAprobado2 = s.solicitanteContacto && s.solicitanteContacto.indexOf('@') !== -1;
           botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
             '<span style="font-size:13px; color:#fff; background:#2e7d32; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900;">✓ Aprobada</span>' +
-            (notificadoAprobado2 ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>' : '') +
+            (notificadoAprobado2 ? '<span style="font-size:11px; color:var(--gris);">notificado</span>' : '') +
             '</div>' +
             '<div style="margin-top:6px; font-size:12px; color:var(--gris);" title="Este tipo de pedido todavía no tiene reversión automática">Deshacer (no disponible para este tipo de pedido)</div>';
         } else {
@@ -721,7 +721,7 @@
             botones = '<div style="display:flex; gap:8px; margin-top:6px; align-items:center; flex-wrap:wrap;">' +
               '<span style="font-size:13px; color:#fff; background:#c0392b; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900;">✗ Rechazada</span>' +
               (s.notificado === 'SI'
-                ? '<span style="font-size:11px; color:var(--gris);">✓ notificado</span>'
+                ? '<span style="font-size:11px; color:var(--gris);">notificado</span>'
                 : '<button id="btn-notificar-' + s.id + '" onclick="notificarRechazoSolicitud(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:6px 14px; border-radius:8px; font-family:Roboto,sans-serif; font-weight:900; cursor:pointer;">Notificar</button>') +
               '</div>' +
               '<div style="margin-top:6px; font-size:12px;">' +
@@ -730,9 +730,9 @@
               '<button id="btn-deshacer-' + s.id + '" onclick="actualizarEstadoSolicitud(\'' + s.id + '\',\'APROBADA\',\'\',\'btn-deshacer-' + s.id + '\',\'Deshaciendo…\',\'✓ Deshecho\')" style="background:none; border:none; color:var(--gris); text-decoration:underline; font-size:12px; cursor:pointer; padding:0;">Deshacer</button>' +
               '</div>' +
               '<div id="motivo-edit-inline-' + s.id + '" style="display:none; margin-top:8px;">' +
-              '<textarea id="motivo-edit-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid var(--petroleo); font-family:inherit; font-size:13px; resize:vertical;">' + (s.motivoRechazo || '') + '</textarea>' +
+              '<textarea id="motivo-edit-input-' + s.id + '" rows="2" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:none; box-shadow:inset 0 0 0 1.5px rgba(19,84,87,0.15); font-family:inherit; font-size:13px; resize:vertical;">' + (s.motivoRechazo || '') + '</textarea>' +
               '<div style="display:flex; gap:8px; margin-top:6px;">' +
-              '<button onclick="ocultarEditarMotivo(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1px solid var(--gris); padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Cancelar</button>' +
+              '<button onclick="ocultarEditarMotivo(\'' + s.id + '\')" style="background:transparent; color:var(--gris); border:1.5px solid rgba(72,121,124,0.4); padding:6px 14px; border-radius:20px; font-size:12px; cursor:pointer;">Cancelar</button>' +
               '<button id="btn-confirmar-editar-motivo-' + s.id + '" onclick="confirmarEditarMotivo(\'' + s.id + '\')" style="background:var(--petroleo); color:var(--lima); border:none; padding:5px 12px; border-radius:8px; font-size:12px; cursor:pointer;">Guardar motivo</button>' +
               '</div></div>';
           } else {
@@ -803,7 +803,7 @@
         html += historialVisible.map(renderItem).join('');
         if (historialResto.length > 0) {
           html += '<div id="historialResto" style="display:none;">' + historialResto.map(renderItem).join('') + '</div>';
-          html += '<button onclick="document.getElementById(\'historialResto\').style.display=\'block\'; this.remove();" style="background:none; border:1px solid var(--hueso); color:var(--hueso); opacity:0.7; padding:6px 14px; border-radius:8px; font-size:12px; margin-top:8px; cursor:pointer; width:100%;">Ver ' + historialResto.length + ' más antiguas</button>';
+          html += '<button onclick="document.getElementById(\'historialResto\').style.display=\'block\'; this.remove();" style="background:none; border:1.5px solid rgba(245,243,236,0.4); color:var(--hueso); opacity:0.7; padding:7px 14px; border-radius:20px; font-size:12px; margin-top:8px; cursor:pointer; width:100%;">Ver ' + historialResto.length + ' más antiguas</button>';
         }
       }
       lista.innerHTML = html;
@@ -890,7 +890,7 @@
   function confirmarEditarMotivo(id) {
     var input = document.getElementById('motivo-edit-input-' + id);
     var motivo = input ? input.value.trim() : '';
-    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-editar-motivo-' + id, 'Guardando…', '✓ Guardado');
+    actualizarEstadoSolicitud(id, 'RECHAZADA', motivo, 'btn-confirmar-editar-motivo-' + id, 'Guardando…', 'Guardado');
   }
 
   function revertirSolicitud(id) {
@@ -900,7 +900,7 @@
     setBotonAccion(btnId, 'enviando', 'Deshaciendo…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'revertir', pinAdmin: pinAdmin, id: id, nombreAdmin: localStorage.getItem('cgv_nombre') || '' }, function(res) {
       if (res && res.ok) {
-        setBotonAccion(btnId, 'exito', '✓ Deshecho');
+        setBotonAccion(btnId, 'exito', 'Deshecho');
         cargarListaSolicitudes(true, id);
         cargarSolicitudes();
       } else if (res && res.__jsonpError) {
@@ -918,7 +918,7 @@
     setBotonAccion(btnId, 'enviando', 'Notificando…');
     jsonp(EXEC_URL_SOLICITUDES, { action: 'notificarRechazo', pinAdmin: pinAdmin, id: id }, function(res) {
       if (res && res.ok) {
-        setBotonAccion(btnId, 'exito', '✓ Notificado');
+        setBotonAccion(btnId, 'exito', 'Notificado');
         cargarListaSolicitudes(true, id);
       } else if (res && res.__jsonpError) {
         setBotonAccion(btnId, 'error', 'Tardó de más, revisá');
@@ -935,7 +935,7 @@
     setBotonAccion(btnId, 'enviando', textoEnviando || (estado === 'APROBADA' ? 'Aprobando…' : 'Rechazando…'));
     jsonp(EXEC_URL_SOLICITUDES, { action: 'actualizarEstado', pinAdmin: pinAdmin, id: id, estado: estado, motivo: motivo || '', nombreAdmin: localStorage.getItem('cgv_nombre') || '' }, function(res) {
       if (res && res.ok) {
-        setBotonAccion(btnId, 'exito', textoExito || (estado === 'APROBADA' ? '✓ Aprobado' : '✓ Rechazado'));
+        setBotonAccion(btnId, 'exito', textoExito || (estado === 'APROBADA' ? 'Aprobado' : 'Rechazado'));
         cargarListaSolicitudes(true, id);
         cargarSolicitudes();
       } else if (res && res.__jsonpError) {
@@ -1031,7 +1031,7 @@
       lista.innerHTML = res.pines.map(function(p) {
         return '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--verdecl);">'
           + '<span><b>' + p.pin + '</b> — ' + p.nombre + ' (' + p.modulos.join(', ') + ') ' + (p.activo === 'SI' ? '' : '<i>[inactivo]</i>') + '</span>'
-          + (p.pin === '1923' ? '' : '<button onclick="eliminarPinExistente(\'' + p.pin + '\')" style="background:none;border:1px solid #c0392b;color:#c0392b;border-radius:6px;padding:3px 8px;cursor:pointer;">Borrar</button>')
+          + (p.pin === '1923' ? '' : '<button onclick="eliminarPinExistente(\'' + p.pin + '\')" style="background:none;border:1.5px solid rgba(192,57,43,0.5);color:#c0392b;border-radius:14px;padding:4px 10px;cursor:pointer;">Borrar</button>')
           + '</div>';
       }).join('');
     });
