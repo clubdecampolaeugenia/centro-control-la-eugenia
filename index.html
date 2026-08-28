@@ -253,6 +253,7 @@
         <div class="tile-titulo">Cómo Llegar</div></div>
         <div class="tile-dato" id="datoLotesOcultos">—</div>
         <div class="tile-label">lotes ocultos</div>
+        <div class="tile-sub" id="datoLotesExpo">—</div>
       </a>
       <a href="https://clubdecampolaeugenia.github.io/mapa-la-eugenia/" target="_blank" class="tile-mini-btn">Ver mapa público</a>
     </div>
@@ -614,6 +615,13 @@
       var el = document.getElementById('datoLotesOcultos');
       if (!el) return;
       el.textContent = (res && res.ok && res.data) ? res.data.length : '—';
+    });
+    jsonp(EXEC_URL_MAPA, { action: 'listarExposiciones' }, function(res) {
+      var el = document.getElementById('datoLotesExpo');
+      if (!el) return;
+      if (!res || !res.ok || !res.data) { el.textContent = '—'; return; }
+      var n = res.data.length;
+      el.textContent = n === 0 ? 'Sin nombres modificados' : (n === 1 ? '1 lote con nombre modificado' : n + ' lotes con nombre modificado');
     });
   }
 
